@@ -1,4 +1,4 @@
-# LinkedIn post formatter
+# LinkedIn post formatter <img src="docs/images/logo.png" align="right" width="240" alt="linkedin-post-formatter hex sticker" />
 
 A static web page for formatting LinkedIn posts. Write with bold, italics,
 headings, lists, and code in a rich-text editor, and copy a version that spells
@@ -8,6 +8,10 @@ The conversion is the [md2linkedin](https://github.com/IndrajeetPatil/md2linkedi
 Python package itself, running in the browser on
 [Pyodide](https://pyodide.org/). There is no server: the text never leaves the
 reader's device.
+
+**Use it at <https://www.indrapatil.com/linkedin-post-formatter/>.**
+
+![Writing a post with a heading, bold, italics, inline code, and a list, then copying the LinkedIn text](docs/images/demo.gif)
 
 ## How it works
 
@@ -45,6 +49,9 @@ vp run e2e        # End-to-end tests in Chromium, Firefox, and WebKit
 ```
 
 The versions of the Python packages live in `wheels/requirements.txt`.
+
+`scripts/record-demo.mjs` re-records the demo above (it needs `ffmpeg`), and
+`hextools/` regenerates the hex sticker.
 
 ## Deployment
 
