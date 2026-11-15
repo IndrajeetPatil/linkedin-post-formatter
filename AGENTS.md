@@ -2,7 +2,8 @@
 
 - Read `README.md` for how the app works and `DESIGN.md` before any visual
   change. `DESIGN.md` extends the indrapatil.com design and mirrors the tokens
-  in `src/style.css`; update both in the same commit.
+  in `src/style.css`; update both in the same commit. For documentation
+  diagrams, follow `.agents/skills/documentation-illustrations/SKILL.md`.
 - Use Vite+ (`vp`) and pnpm. Before committing, run `vp check` and, after
   building the wheels once with `vp run wheels`, `vp run e2e`.
 - The Pyodide version in `package.json` is pinned exactly: the wheels are

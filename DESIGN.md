@@ -1,8 +1,8 @@
 ---
 version: alpha
-name: LinkedIn post formatter
+name: LinkedIn Post Formatter
 description: >-
-  A LinkedIn post formatter in the indrapatil.com identity — warm paper, ink,
+  A LinkedIn Post Formatter in the indrapatil.com identity — warm paper, ink,
   Fraunces headings, one teal accent, and flat hairline panels, with the
   editor and the LinkedIn text set side by side like facing pages.
 colors:
@@ -68,7 +68,7 @@ components:
 
 # DESIGN.md
 
-The visual design of the LinkedIn post formatter. It follows the visual
+The visual design of the LinkedIn Post Formatter. It follows the visual
 identity of [indrapatil.com](https://www.indrapatil.com/) (the base), last
 reconciled on 2026-11-15. Everything in that identity applies here unless this
 file records a choice or an addition below.
@@ -123,3 +123,13 @@ sentence of explanation, and a colophon.
 
 - Dark mode switches through `color-scheme` and `light-dark()` rather than
   the base's `.dark` class, so it also works before any script runs.
+
+## Documentation illustrations
+
+Documentation diagrams use the palette and typography above: warm paper
+(`#faf8f4`), ink (`#201d18`), muted ink (`#5d574c`), hairlines
+(`#e3ded2`), and sparse teal accent (`#14584d`). Use Fraunces-like serif
+titles and Hanken-like sans labels. Keep diagrams flat, legible, and
+content-specific, with thin directional arrows and outline icons. Preserve
+explanatory details in searchable Markdown. Avoid shadows, gradients, texture,
+3D, cards, decorative footers, emoji, and invented facts.
