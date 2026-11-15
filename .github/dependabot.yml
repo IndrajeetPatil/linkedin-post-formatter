@@ -1,0 +1,22 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      dependencies:
+        patterns: ["*"]
+        # Pyodide must match the cross-build environment the wheels target,
+        # so its upgrades arrive alone.
+        exclude-patterns: ["pyodide"]
+
+  - package-ecosystem: pip
+    directory: /wheels
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Format a LinkedIn post with bold, italics, headings, lists, and code, and copy it as Unicode text that LinkedIn keeps."
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>LinkedIn post formatter</title>
+  </head>
+  <body>
+    <header class="masthead">
+      <div>
+        <h1>LinkedIn post formatter</h1>
+        <p class="summary">
+          LinkedIn drops formatting from pasted text. Write your post here, then copy a version that
+          spells bold, italics, headings, and code in Unicode characters, which LinkedIn keeps.
+        </p>
+      </div>
+      <a
+        class="icon-button tip-end"
+        href="https://github.com/IndrajeetPatil/linkedin-post-formatter"
+        aria-label="Source code on GitHub"
+        data-tip="Source code on GitHub"
+      >
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+          />
+        </svg>
+      </a>
+    </header>
+
+    <main class="workspace">
+      <section class="pane" aria-labelledby="write-heading">
+        <h2 id="write-heading">Write</h2>
+        <div class="panel">
+          <div
+            class="toolbar"
+            role="toolbar"
+            focusgroup="toolbar wrap"
+            aria-label="Formatting"
+            aria-controls="editor"
+          >
+            <div role="group" aria-label="Text style">
+              <button type="button" data-format="bold" data-keys="Mod-B" aria-label="Bold">
+                <i data-lucide="bold"></i>
+              </button>
+              <button type="button" data-format="italic" data-keys="Mod-I" aria-label="Italic">
+                <i data-lucide="italic"></i>
+              </button>
+              <button type="button" data-format="code" data-keys="Mod-E" aria-label="Inline code">
+                <i data-lucide="code"></i>
+              </button>
+            </div>
+            <span role="separator" aria-orientation="vertical"></span>
+            <div role="group" aria-label="Blocks">
+              <button type="button" data-format="h1" data-keys="Mod-Alt-1" aria-label="Heading">
+                <i data-lucide="heading-1"></i>
+              </button>
+              <button type="button" data-format="h2" data-keys="Mod-Alt-2" aria-label="Subheading">
+                <i data-lucide="heading-2"></i>
+              </button>
+              <button
+                type="button"
+                data-format="bullets"
+                data-keys="Mod-Shift-8"
+                aria-label="Bulleted list"
+              >
+                <i data-lucide="list"></i>
+              </button>
+              <button
+                type="button"
+                data-format="numbers"
+                data-keys="Mod-Shift-7"
+                aria-label="Numbered list"
+              >
+                <i data-lucide="list-ordered"></i>
+              </button>
+              <button
+                type="button"
+                data-format="codeBlock"
+                data-keys="Mod-Alt-C"
+                aria-label="Code block"
+              >
+                <i data-lucide="square-code"></i>
+              </button>
+            </div>
+          </div>
+          <div id="editor"></div>
+        </div>
+      </section>
+
+      <section class="pane" aria-labelledby="post-heading">
+        <div class="pane-heading">
+          <h2 id="post-heading">LinkedIn text</h2>
+          <span id="count" class="folio-mark"></span>
+        </div>
+        <div class="panel">
+          <div id="post" class="post" aria-describedby="post-heading">
+            <p class="loading">Loading the formatter…</p>
+          </div>
+          <div class="post-actions">
+            <div class="options">
+              <label><input type="checkbox" id="monospace-code" checked /> Monospace code</label>
+              <label><input type="checkbox" id="preserve-links" /> Keep link URLs</label>
+            </div>
+            <span class="copy">
+              <button type="button" id="copy" class="btn btn-primary" aria-disabled="true">
+                <i data-lucide="copy"></i>
+                <i data-lucide="check"></i>
+                Copy text
+              </button>
+              <span class="tip" role="status"></span>
+            </span>
+          </div>
+        </div>
+        <p id="error" class="banner" role="alert" hidden></p>
+      </section>
+    </main>
+
+    <footer class="colophon">
+      <p>Runs entirely in your browser. Your text never leaves this device.</p>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

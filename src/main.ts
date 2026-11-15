@@ -1,0 +1,209 @@
+import "./style.css";
+import { type ChainedCommands, Editor } from "@tiptap/core";
+import { Placeholder } from "@tiptap/extensions";
+import { Markdown } from "@tiptap/markdown";
+import StarterKit from "@tiptap/starter-kit";
+import {
+  Bold,
+  Check,
+  Code,
+  Copy,
+  createIcons,
+  Heading1,
+  Heading2,
+  Italic,
+  List,
+  ListOrdered,
+  SquareCode,
+} from "lucide";
+import type { ConvertRequest, ConvertResponse } from "./protocol.ts";
+import sample from "./sample.md?raw";
+
+const DRAFT_KEY = "linkedin-post-formatter:draft";
+// LinkedIn's limit for a post. Styled letters are two UTF-16 code units each,
+// and counting those rather than code points errs on the side of fitting.
+const POST_LIMIT = 3000;
+
+const $ = <T extends HTMLElement>(selector: string) => document.querySelector<T>(selector)!;
+const post = $("#post");
+const count = $("#count");
+const copyButton = $<HTMLButtonElement>("#copy");
+const copyStatus = $(".copy .tip");
+const errorBanner = $("#error");
+const monospaceCode = $<HTMLInputElement>("#monospace-code");
+const preserveLinks = $<HTMLInputElement>("#preserve-links");
+
+createIcons({
+  icons: {
+    Bold,
+    Check,
+    Code,
+    Copy,
+    Heading1,
+    Heading2,
+    Italic,
+    List,
+    ListOrdered,
+    SquareCode,
+  },
+  attrs: { "aria-hidden": "true" },
+});
+
+// ── Editor ──────────────────────────────────────────────────────────────────
+
+const editor = new Editor({
+  element: $("#editor"),
+  extensions: [
+    // Only the formatting md2linkedin can express in Unicode is on offer.
+    StarterKit.configure({
+      blockquote: false,
+      horizontalRule: false,
+      strike: false,
+      underline: false,
+      heading: { levels: [1, 2, 3] },
+      link: { openOnClick: false },
+    }),
+    Markdown,
+    Placeholder.configure({ placeholder: "Write your post…" }),
+  ],
+  content: localStorage.getItem(DRAFT_KEY) ?? sample,
+  contentType: "markdown",
+  editorProps: {
+    attributes: { "aria-label": "Post", "aria-multiline": "true", role: "textbox" },
+  },
+});
+
+type Format = { run: (chain: ChainedCommands) => ChainedCommands; active: [string, object?] };
+
+const formats: Record<string, Format> = {
+  bold: { run: (c) => c.toggleBold(), active: ["bold"] },
+  italic: { run: (c) => c.toggleItalic(), active: ["italic"] },
+  code: { run: (c) => c.toggleCode(), active: ["code"] },
+  h1: { run: (c) => c.toggleHeading({ level: 1 }), active: ["heading", { level: 1 }] },
+  h2: { run: (c) => c.toggleHeading({ level: 2 }), active: ["heading", { level: 2 }] },
+  bullets: { run: (c) => c.toggleBulletList(), active: ["bulletList"] },
+  numbers: { run: (c) => c.toggleOrderedList(), active: ["orderedList"] },
+  codeBlock: { run: (c) => c.toggleCodeBlock(), active: ["codeBlock"] },
+};
+
+const toolbar = $(".toolbar");
+const buttons = [...toolbar.querySelectorAll<HTMLButtonElement>("button")];
+const isMac = /Mac|iP(hone|ad)/.test(navigator.userAgent);
+
+for (const button of buttons) {
+  const keys = button.dataset["keys"]!.split("-");
+  const shortcut = isMac
+    ? keys.map((k) => ({ Mod: "⌘", Alt: "⌥", Shift: "⇧" })[k] ?? k).join("")
+    : keys.map((k) => ({ Mod: "Ctrl" })[k] ?? k).join("+");
+  button.dataset["tip"] = `${button.ariaLabel} ${shortcut}`;
+  button.setAttribute(
+    "aria-keyshortcuts",
+    keys.map((k) => ({ Mod: isMac ? "Meta" : "Control" })[k] ?? k).join("+"),
+  );
+  // Clicks keep focus and the selection in the editor; keyboard users still
+  // reach the buttons through the toolbar's tab stop.
+  button.addEventListener("mousedown", (event) => event.preventDefault());
+  button.addEventListener("click", () => {
+    formats[button.dataset["format"]!]!.run(editor.chain().focus()).run();
+  });
+}
+
+function syncToolbar() {
+  for (const button of buttons) {
+    button.ariaPressed = String(editor.isActive(...formats[button.dataset["format"]!]!.active));
+  }
+}
+
+// One tab stop for the toolbar where the browser lacks native focusgroup.
+if (!("focusGroup" in HTMLElement.prototype)) {
+  buttons.forEach((b, i) => (b.tabIndex = i ? -1 : 0));
+  toolbar.addEventListener("focusin", ({ target }) => {
+    for (const b of buttons) b.tabIndex = b === target ? 0 : -1;
+  });
+  toolbar.addEventListener("keydown", (event) => {
+    const i = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    const n = buttons.length;
+    const next = { ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 }[
+      event.key
+    ];
+    if (i < 0 || next === undefined) return;
+    event.preventDefault();
+    buttons[next]!.focus();
+  });
+}
+
+// ── Conversion ──────────────────────────────────────────────────────────────
+
+const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
+let latest = 0;
+let text = "";
+
+function convert() {
+  const request: ConvertRequest = {
+    id: ++latest,
+    markdown: editor.getMarkdown(),
+    preserveLinks: preserveLinks.checked,
+    monospaceCode: monospaceCode.checked,
+  };
+  worker.postMessage(request);
+}
+
+worker.addEventListener("message", ({ data }: MessageEvent<ConvertResponse>) => {
+  // Replies arrive in order; skip any that a newer edit has superseded.
+  if (data.id !== latest) return;
+  errorBanner.hidden = !("error" in data);
+  if ("error" in data) {
+    errorBanner.textContent = `The converter failed: ${data.error}`;
+    return;
+  }
+  text = data.text;
+  post.textContent = text;
+  post.classList.toggle("empty", !text);
+  copyButton.ariaDisabled = String(!text);
+  // The trailing newline the converter ends with is not part of the post.
+  const length = text.trimEnd().length;
+  const over = length > POST_LIMIT;
+  count.classList.toggle("over", over);
+  count.textContent = `${length.toLocaleString("en-GB")} / ${POST_LIMIT.toLocaleString("en-GB")}${over ? ", too long for a post" : ""}`;
+});
+
+editor.on("transaction", syncToolbar);
+editor.on("update", () => {
+  localStorage.setItem(DRAFT_KEY, editor.getMarkdown());
+  convert();
+});
+for (const option of [monospaceCode, preserveLinks]) {
+  const key = `linkedin-post-formatter:${option.id}`;
+  const saved = localStorage.getItem(key);
+  if (saved) option.checked = saved === "true";
+  option.addEventListener("change", () => {
+    localStorage.setItem(key, String(option.checked));
+    convert();
+  });
+}
+syncToolbar();
+convert();
+
+// ── Copy ────────────────────────────────────────────────────────────────────
+
+let resetCopy: ReturnType<typeof setTimeout> | undefined;
+
+copyButton.addEventListener("click", async () => {
+  if (copyButton.ariaDisabled === "true") return;
+  let ok = true;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    ok = false;
+  }
+  clearTimeout(resetCopy);
+  copyButton.toggleAttribute("data-copied", ok);
+  copyButton.toggleAttribute("data-failed", !ok);
+  copyStatus.textContent = "";
+  requestAnimationFrame(() => (copyStatus.textContent = ok ? "Copied" : "Copy failed"));
+  resetCopy = setTimeout(() => {
+    copyButton.removeAttribute("data-copied");
+    copyButton.removeAttribute("data-failed");
+    copyStatus.textContent = "";
+  }, 2000);
+});
