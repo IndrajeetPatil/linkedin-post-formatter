@@ -1,4 +1,4 @@
-# LinkedIn post formatter <img src="docs/images/logo.png" align="right" width="240" alt="linkedin-post-formatter hex sticker" />
+# LinkedIn Post Formatter <img src="docs/images/logo.png" align="right" width="240" alt="linkedin-post-formatter hex sticker" />
 
 A static web page for formatting LinkedIn posts. Write with bold, italics,
 headings, lists, and code in a rich-text editor, and copy a version that spells
@@ -15,13 +15,7 @@ reader's device.
 
 ## How it works
 
-```mermaid
-flowchart LR
-  editor["Tiptap editor"] -- Markdown --> worker["Web Worker"]
-  worker -- "md2linkedin.convert()" --> preview["LinkedIn text"]
-  cdn["Pyodide runtime (jsDelivr)"] --> worker
-  wheels["Wheels built for Pyodide"] --> worker
-```
+![Diagram showing how the Tiptap editor, Web Worker, Pyodide runtime, and WebAssembly wheels produce LinkedIn text](docs/images/how-it-works.webp)
 
 - [Tiptap](https://tiptap.dev/) and its Markdown extension turn the formatted
   text into Markdown.
