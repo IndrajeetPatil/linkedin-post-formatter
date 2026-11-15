@@ -185,9 +185,17 @@ if (!("focusGroup" in HTMLElement.prototype)) {
 
 const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
 let latest = 0;
-let text = "";
+// The text of the latest request, settled when its reply arrives. A copy made
+// while a conversion is pending waits for it, so it never copies stale text.
+let result = Promise.withResolvers<string>();
 
 function convert() {
+  const next = Promise.withResolvers<string>();
+  // A copy already waiting on the previous request waits for this one instead.
+  result.resolve(next.promise);
+  // Failures surface through the copy button and the error banner.
+  next.promise.catch(() => undefined);
+  result = next;
   const request: ConvertRequest = {
     id: ++latest,
     markdown: editor.getMarkdown(),
@@ -203,9 +211,11 @@ worker.addEventListener("message", ({ data }: MessageEvent<ConvertResponse>) => 
   errorBanner.hidden = !("error" in data);
   if ("error" in data) {
     errorBanner.textContent = `The converter failed: ${data.error}`;
+    result.reject(new Error(data.error));
     return;
   }
-  text = data.text;
+  const { text } = data;
+  result.resolve(text);
   post.textContent = text;
   post.classList.toggle("empty", !text);
   copyButton.ariaDisabled = String(!text);
@@ -237,11 +247,23 @@ convert();
 
 let resetCopy: ReturnType<typeof setTimeout> | undefined;
 
+// Hands the clipboard a promise of the latest text, so a click made while a
+// conversion is pending still counts as the user's gesture in every browser.
+async function writeLatest() {
+  const text = result.promise;
+  if ("ClipboardItem" in globalThis) {
+    const blob = text.then((value) => new Blob([value], { type: "text/plain" }));
+    await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })]);
+  } else {
+    await navigator.clipboard.writeText(await text);
+  }
+}
+
 copyButton.addEventListener("click", async () => {
   if (copyButton.ariaDisabled === "true") return;
   let ok = true;
   try {
-    await navigator.clipboard.writeText(text);
+    await writeLatest();
   } catch {
     ok = false;
   }

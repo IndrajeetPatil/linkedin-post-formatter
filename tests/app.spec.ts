@@ -100,3 +100,38 @@ test("keeps working when storage is blocked", async ({ page }) => {
   await page.getByRole("button", { name: "Switch to dark theme" }).click();
   await expect(page.getByRole("button", { name: "Switch to light theme" })).toBeVisible();
 });
+
+test("copies the latest edit while it is still converting", async ({
+  page,
+  context,
+  browserName,
+}) => {
+  test.skip(browserName !== "chromium", "Only Chromium lets a test read the clipboard back.");
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  // Hold requests to the worker back, and so its replies, for as long as
+  // `replyDelay` says.
+  await page.addInitScript(() => {
+    // oxlint-disable-next-line typescript/unbound-method -- called with `this` below.
+    const send = Worker.prototype.postMessage;
+    Worker.prototype.postMessage = function (this: Worker, message: unknown) {
+      const delay = (globalThis as { replyDelay?: number }).replyDelay ?? 0;
+      setTimeout(() => {
+        send.call(this, message);
+      }, delay);
+    };
+  });
+  await page.goto("./");
+  const post = page.locator("#post");
+  await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+
+  await page.evaluate(() => {
+    (globalThis as { replyDelay?: number }).replyDelay = 1500;
+  });
+  await page.getByRole("textbox", { name: "Post" }).fill("Fresh text");
+  await page.getByRole("button", { name: "Copy text" }).click();
+  // The preview still shows the old post when the click lands.
+  await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘");
+  await expect(page.getByRole("status")).toHaveText("Copied", { timeout: 10_000 });
+  const copied = await page.evaluate(async () => navigator.clipboard.readText());
+  expect(copied).toMatch(/Fresh text|𝗙𝗥𝗘𝗦𝗛 𝗧𝗘𝗫𝗧/u);
+});
