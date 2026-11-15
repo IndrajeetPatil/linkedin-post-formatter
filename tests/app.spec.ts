@@ -41,3 +41,23 @@ test("formats what is typed and copies it", async ({ page, context, browserName 
   await page.reload();
   await expect(post).toHaveText("𝗛𝗲𝗹𝗹𝗼 world x", { timeout: 60_000 });
 });
+
+test("overrides the system colour scheme and returns to it", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("./");
+  const background = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  const light = await background();
+
+  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  await expect(page.getByRole("button", { name: "Switch to light theme" })).toBeVisible();
+  expect(await background()).not.toBe(light);
+
+  // The override survives a reload, and switching back to the system's
+  // scheme clears it rather than pinning light.
+  await page.reload();
+  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  expect(await background()).toBe(light);
+  expect(
+    await page.evaluate(() => localStorage.getItem("linkedin-post-formatter:color-scheme")),
+  ).toBeNull();
+});

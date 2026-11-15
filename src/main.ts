@@ -14,12 +14,16 @@ import {
   Italic,
   List,
   ListOrdered,
+  Moon,
   SquareCode,
+  Sun,
 } from "lucide";
 import type { ConvertRequest, ConvertResponse } from "./protocol.ts";
 import sample from "./sample.md?raw";
 
 const DRAFT_KEY = "linkedin-post-formatter:draft";
+// Keys are prefixed because every app on the domain shares one localStorage.
+const THEME_KEY = "linkedin-post-formatter:color-scheme";
 // LinkedIn's limit for a post. Styled letters are two UTF-16 code units each,
 // and counting those rather than code points errs on the side of fitting.
 const POST_LIMIT = 3000;
@@ -44,10 +48,33 @@ createIcons({
     Italic,
     List,
     ListOrdered,
+    Moon,
     SquareCode,
+    Sun,
   },
   attrs: { "aria-hidden": "true" },
 });
+
+// ── Theme ───────────────────────────────────────────────────────────────────
+// The page follows the system scheme unless the reader overrides it. The
+// toggle switches to the opposite of what is shown; switching back to the
+// system's scheme clears the override rather than pinning it. CSS maps the
+// meta tag to `color-scheme`, and the inline script in index.html applies a
+// stored override before first paint.
+
+const schemeMeta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]')!;
+const systemDark = matchMedia("(prefers-color-scheme: dark)");
+const applyScheme = () => (schemeMeta.content = localStorage.getItem(THEME_KEY) ?? "light dark");
+
+$("#theme-toggle").addEventListener("click", () => {
+  const system = systemDark.matches ? "dark" : "light";
+  const shown = schemeMeta.content === "light dark" ? system : schemeMeta.content;
+  const target = shown === "dark" ? "light" : "dark";
+  if (target === system) localStorage.removeItem(THEME_KEY);
+  else localStorage.setItem(THEME_KEY, target);
+  applyScheme();
+});
+addEventListener("storage", ({ key }) => key === THEME_KEY && applyScheme());
 
 // ── Editor ──────────────────────────────────────────────────────────────────
 

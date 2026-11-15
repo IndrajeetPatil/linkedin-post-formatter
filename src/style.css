@@ -48,6 +48,23 @@
   --radius-lg: 8px;
 
   accent-color: var(--color-accent);
+
+  /* The theme toggle overrides the system scheme through the meta tag. */
+  &:has(> head > meta[name="color-scheme"][content="dark"]) {
+    color-scheme: dark;
+  }
+  &:has(> head > meta[name="color-scheme"][content="light"]) {
+    color-scheme: light;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 *,
@@ -113,6 +130,48 @@ svg {
   justify-content: space-between;
   gap: 1.5rem;
   padding-block: 3.5rem 2.5rem;
+}
+
+.masthead-actions {
+  display: flex;
+  flex: none;
+  gap: 0.25rem;
+}
+
+/* The toggle shows the action it will take: a moon while the page is light,
+   a sun while it is dark. The hidden option leaves the accessibility tree. */
+#theme-toggle .to-dark {
+  display: inline-grid;
+}
+
+#theme-toggle .to-light {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(:has(> head > meta[name="color-scheme"][content="light"])) {
+    #theme-toggle .to-dark {
+      display: none;
+    }
+    #theme-toggle .to-light {
+      display: inline-grid;
+    }
+    #theme-toggle::after {
+      content: "Switch to light theme";
+    }
+  }
+}
+
+:root:has(> head > meta[name="color-scheme"][content="dark"]) {
+  #theme-toggle .to-dark {
+    display: none;
+  }
+  #theme-toggle .to-light {
+    display: inline-grid;
+  }
+  #theme-toggle::after {
+    content: "Switch to light theme";
+  }
 }
 
 .masthead h1 {

@@ -85,15 +85,15 @@ sentence of explanation, and a colophon.
 
 ## Choices
 
-| Base parameter | Choice here                                                                           | Why                                                              |
-| -------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Accent         | Teal-green, the base default                                                          | Nothing about the subject calls for another accent.              |
-| Paper and ink  | The base values, unchanged, in both modes                                             | —                                                                |
-| Chip hues      | Rust only, for errors and an over-long post                                           | The app has no taxonomy.                                         |
-| Dark mode      | Supported, following the system setting through `light-dark()` tokens, with no toggle | A single tool page gains nothing from a stored preference.       |
-| Type scale     | `title` at the base maximum; `heading` lowered to 1.4rem; no `display`                | Panel headings label tools, not chapters.                        |
-| Width          | `max-w-6xl` (72rem)                                                                   | Two panels side by side from 64rem.                              |
-| Density        | Toolbar buttons at 36px                                                               | Dense secondary controls; the copy button and options keep 44px. |
+| Base parameter | Choice here                                                                                                                                | Why                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| Accent         | Teal-green, the base default                                                                                                               | Nothing about the subject calls for another accent.              |
+| Paper and ink  | The base values, unchanged, in both modes                                                                                                  | —                                                                |
+| Chip hues      | Rust only, for errors and an over-long post                                                                                                | The app has no taxonomy.                                         |
+| Dark mode      | Supported: the base dark set as `light-dark()` tokens, following the system setting until the reader overrides it with the masthead toggle | Posts get written late in the evening as often as at a desk.     |
+| Type scale     | `title` at the base maximum; `heading` lowered to 1.4rem; no `display`                                                                     | Panel headings label tools, not chapters.                        |
+| Width          | `max-w-6xl` (72rem)                                                                                                                        | Two panels side by side from 64rem.                              |
+| Density        | Toolbar buttons at 36px                                                                                                                    | Dense secondary controls; the copy button and options keep 44px. |
 
 ## Additions
 
@@ -106,7 +106,20 @@ sentence of explanation, and a colophon.
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.
 
+## Dark mode
+
+- **Switching:** a two-state icon button beside the GitHub link shows the
+  action it takes (a moon while the page is light, a sun while dark). It sets
+  `<meta name="color-scheme">` to `light` or `dark`, which CSS maps to
+  `color-scheme`, so every `light-dark()` token follows. Choosing the
+  system's own scheme clears the override instead of pinning it.
+
+- **Persistence:** the override lives in `localStorage`
+  (`linkedin-post-formatter:color-scheme`), and an inline script in
+  `index.html` applies it before first paint. Without JavaScript the page
+  follows the system.
+
 ## Drift
 
-- Dark mode switches on `prefers-color-scheme` through `light-dark()` rather
-  than the base's `.dark` class, since there is no toggle to drive a class.
+- Dark mode switches through `color-scheme` and `light-dark()` rather than
+  the base's `.dark` class, so it also works before any script runs.
