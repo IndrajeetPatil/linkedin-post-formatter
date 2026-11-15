@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 252 136" width="504" height="272">
+  <!-- The draft card behind: plain lines of text, as written -->
+  <rect x="8" y="6" width="150" height="112" rx="12" fill="#f2efe8" stroke="#5d574c" stroke-width="5"/>
+  <rect x="24" y="24" width="96" height="7" rx="3" fill="#5d574c"/>
+  <rect x="24" y="40" width="70" height="7" rx="3" fill="#5d574c"/>
+  <rect x="24" y="56" width="84" height="7" rx="3" fill="#5d574c"/>
+  <!-- The post card in front: the same text, formatted -->
+  <rect x="82" y="22" width="162" height="108" rx="12" fill="#fdfcf9" stroke="#201d18" stroke-width="6"/>
+  <!-- Heading between two teal rules -->
+  <rect x="98" y="36" width="130" height="4" rx="2" fill="#14584d"/>
+  <rect x="98" y="46" width="88" height="13" rx="2" fill="#201d18"/>
+  <rect x="98" y="65" width="130" height="4" rx="2" fill="#14584d"/>
+  <!-- Italic line, slanted -->
+  <polygon points="104,78 176,78 172,88 100,88" fill="#5d574c"/>
+  <!-- Bulleted list -->
+  <circle cx="103" cy="102" r="4" fill="#201d18"/>
+  <rect x="113" y="99" width="78" height="7" rx="3" fill="#201d18"/>
+  <circle cx="103" cy="117" r="4" fill="#201d18"/>
+  <rect x="113" y="114" width="56" height="7" rx="3" fill="#201d18"/>
+</svg>

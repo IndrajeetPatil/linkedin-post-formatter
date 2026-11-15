@@ -1,0 +1,6 @@
+# Built into Pyodide wheels by scripts/build-wheels.sh. click, md2linkedin's
+# other dependency, only serves its command-line interface, so the app leaves
+# it out.
+md2linkedin==0.6.0
+comrak==0.0.16
+selectolax==1.0.2
