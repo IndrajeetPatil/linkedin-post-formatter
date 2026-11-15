@@ -11,6 +11,12 @@ test("formats what is typed and copies it", async ({ page, context, browserName 
   // `fill` clears the editor the same way on every platform; select-all
   // shortcuts differ between desktop and mobile browsers.
   await editor.fill("");
+  // Some browsers keep the sample's heading block after clearing; start from
+  // a plain paragraph.
+  const heading = page.getByRole("button", { name: "Heading", exact: true });
+  if ((await heading.getAttribute("aria-pressed")) === "true") {
+    await heading.click();
+  }
   await expect(post).toHaveText("");
   await expect(page.getByRole("button", { name: "Copy text" })).toHaveAttribute(
     "aria-disabled",
@@ -70,4 +76,27 @@ test("fits the narrowest phones without sideways scrolling", async ({ page }) =>
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(overflow).toBe(0);
+});
+
+test("keeps working when storage is blocked", async ({ page }) => {
+  await page.addInitScript(() => {
+    const blocked = () => {
+      throw new DOMException("Blocked", "SecurityError");
+    };
+    Storage.prototype.getItem = blocked;
+    Storage.prototype.setItem = blocked;
+    Storage.prototype.removeItem = blocked;
+  });
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.goto("./");
+  const post = page.locator("#post");
+  await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+
+  // Edits still convert. Clearing can leave the sample's heading block
+  // behind in some browsers, so either rendering of the new text counts.
+  await page.getByRole("textbox", { name: "Post" }).fill("Still here");
+  await expect(post).toContainText(/Still here|𝗦𝗧𝗜𝗟𝗟 𝗛𝗘𝗥𝗘/u);
+
+  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  await expect(page.getByRole("button", { name: "Switch to light theme" })).toBeVisible();
 });

@@ -28,6 +28,28 @@ const THEME_KEY = "linkedin-post-formatter:color-scheme";
 // and counting those rather than code points errs on the side of fitting.
 const POST_LIMIT = 3000;
 
+// Storage is best-effort: it can be blocked, or full because the whole domain
+// shares it, and the page must keep converting either way.
+function load(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function save(key: string, value: string | null) {
+  try {
+    if (value === null) {
+      localStorage.removeItem(key);
+    } else {
+      localStorage.setItem(key, value);
+    }
+  } catch {
+    // Nothing is kept for the next visit, which is the only loss.
+  }
+}
+
 const $ = <T extends HTMLElement>(selector: string) => document.querySelector<T>(selector)!;
 const post = $("#post");
 const count = $("#count");
@@ -64,15 +86,15 @@ createIcons({
 
 const schemeMeta = document.querySelector<HTMLMetaElement>('meta[name="color-scheme"]')!;
 const systemDark = matchMedia("(prefers-color-scheme: dark)");
-const applyScheme = () => (schemeMeta.content = localStorage.getItem(THEME_KEY) ?? "light dark");
+const applyScheme = () => (schemeMeta.content = load(THEME_KEY) ?? "light dark");
 
 $("#theme-toggle").addEventListener("click", () => {
   const system = systemDark.matches ? "dark" : "light";
   const shown = schemeMeta.content === "light dark" ? system : schemeMeta.content;
   const target = shown === "dark" ? "light" : "dark";
-  if (target === system) localStorage.removeItem(THEME_KEY);
-  else localStorage.setItem(THEME_KEY, target);
-  applyScheme();
+  const override = target === system ? null : target;
+  save(THEME_KEY, override);
+  schemeMeta.content = override ?? "light dark";
 });
 addEventListener("storage", ({ key }) => key === THEME_KEY && applyScheme());
 
@@ -93,7 +115,7 @@ const editor = new Editor({
     Markdown,
     Placeholder.configure({ placeholder: "Write your post…" }),
   ],
-  content: localStorage.getItem(DRAFT_KEY) ?? sample,
+  content: load(DRAFT_KEY) ?? sample,
   contentType: "markdown",
   editorProps: {
     attributes: { "aria-label": "Post", "aria-multiline": "true", role: "textbox" },
@@ -196,15 +218,15 @@ worker.addEventListener("message", ({ data }: MessageEvent<ConvertResponse>) => 
 
 editor.on("transaction", syncToolbar);
 editor.on("update", () => {
-  localStorage.setItem(DRAFT_KEY, editor.getMarkdown());
+  save(DRAFT_KEY, editor.getMarkdown());
   convert();
 });
 for (const option of [monospaceCode, preserveLinks]) {
   const key = `linkedin-post-formatter:${option.id}`;
-  const saved = localStorage.getItem(key);
+  const saved = load(key);
   if (saved) option.checked = saved === "true";
   option.addEventListener("change", () => {
-    localStorage.setItem(key, String(option.checked));
+    save(key, String(option.checked));
     convert();
   });
 }
