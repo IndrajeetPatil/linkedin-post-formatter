@@ -1,4 +1,4 @@
-# LinkedIn post formatter <img src="docs/images/logo.png" align="right" width="240" alt="linkedin-post-formatter hex sticker" />
+# LinkedIn Post Formatter <img src="docs/images/logo.png" align="right" width="240" alt="linkedin-post-formatter hex sticker" />
 
 A static web page for formatting LinkedIn posts. Write with bold, italics,
 headings, lists, and code in a rich-text editor, and copy a version that spells
