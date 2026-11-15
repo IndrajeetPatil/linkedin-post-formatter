@@ -8,9 +8,9 @@ test("formats what is typed and copies it", async ({ page, context, browserName 
   // The sample post converts once Pyodide and the wheels have loaded.
   await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘 𝗟𝗘𝗦𝗦𝗢𝗡𝗦", { timeout: 60_000 });
 
-  await editor.click();
-  await page.keyboard.press("ControlOrMeta+a");
-  await page.keyboard.press("Delete");
+  // `fill` clears the editor the same way on every platform; select-all
+  // shortcuts differ between desktop and mobile browsers.
+  await editor.fill("");
   await expect(post).toHaveText("");
   await expect(page.getByRole("button", { name: "Copy text" })).toHaveAttribute(
     "aria-disabled",
