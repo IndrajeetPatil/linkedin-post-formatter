@@ -61,3 +61,13 @@ test("overrides the system colour scheme and returns to it", async ({ page }) =>
     await page.evaluate(() => localStorage.getItem("linkedin-post-formatter:color-scheme")),
   ).toBeNull();
 });
+
+test("fits the narrowest phones without sideways scrolling", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await page.goto("./");
+  await expect(page.locator("#post")).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBe(0);
+});

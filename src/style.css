@@ -42,7 +42,7 @@
   /* LinkedIn sets posts in the system face, so the preview does too. */
   --font-post: -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 
-  --text-title: clamp(2.4rem, 2rem + 2.2vw, 3.75rem);
+  --text-title: clamp(2rem, 1.5rem + 2.6vw, 3.75rem);
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
@@ -124,12 +124,26 @@ svg {
   padding-inline: 1.5rem;
 }
 
+/* The title and the icon buttons share the first row; the summary spans the
+   full width below, so a narrow phone does not squeeze it beside the icons. */
 .masthead {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0 0.5rem;
   padding-block: 3.5rem 2.5rem;
+}
+
+.masthead > div:first-child {
+  display: contents;
+}
+
+.masthead .summary {
+  grid-column: 1 / -1;
+}
+
+.masthead-actions {
+  grid-area: 1 / 2;
 }
 
 .masthead-actions {
@@ -260,6 +274,23 @@ svg {
   align-self: stretch;
   margin: 0.375rem 0.25rem;
   border-left: 1px solid var(--color-border);
+}
+
+/* Phones: slightly smaller buttons keep the toolbar on one row from 360px.
+   Narrower still, it wraps, and a divider left at the end of a row is
+   hidden visually but kept for assistive technology. */
+@media (width < 26rem) {
+  .toolbar [role="group"] button {
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+}
+
+@media (width < 22.5rem) {
+  .toolbar [role="separator"] {
+    margin-inline: 0;
+    opacity: 0;
+  }
 }
 
 .toolbar button,

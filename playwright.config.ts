@@ -13,6 +13,9 @@ export default defineConfig({
     { name: "chromium", use: devices["Desktop Chrome"] },
     { name: "firefox", use: devices["Desktop Firefox"] },
     { name: "webkit", use: devices["Desktop Safari"] },
+    // Phones: touch input, narrow viewports, and mobile Safari and Chrome.
+    { name: "iphone", use: devices["iPhone 15"] },
+    { name: "android", use: devices["Pixel 7"] },
   ],
   webServer: {
     command: "vp build && vp preview --port 4173 --strictPort",

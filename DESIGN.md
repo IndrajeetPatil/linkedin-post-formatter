@@ -85,15 +85,15 @@ sentence of explanation, and a colophon.
 
 ## Choices
 
-| Base parameter | Choice here                                                                                                                                | Why                                                              |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| Accent         | Teal-green, the base default                                                                                                               | Nothing about the subject calls for another accent.              |
-| Paper and ink  | The base values, unchanged, in both modes                                                                                                  | —                                                                |
-| Chip hues      | Rust only, for errors and an over-long post                                                                                                | The app has no taxonomy.                                         |
-| Dark mode      | Supported: the base dark set as `light-dark()` tokens, following the system setting until the reader overrides it with the masthead toggle | Posts get written late in the evening as often as at a desk.     |
-| Type scale     | `title` at the base maximum; `heading` lowered to 1.4rem; no `display`                                                                     | Panel headings label tools, not chapters.                        |
-| Width          | `max-w-6xl` (72rem)                                                                                                                        | Two panels side by side from 64rem.                              |
-| Density        | Toolbar buttons at 36px                                                                                                                    | Dense secondary controls; the copy button and options keep 44px. |
+| Base parameter | Choice here                                                                                                                                | Why                                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Accent         | Teal-green, the base default                                                                                                               | Nothing about the subject calls for another accent.                                                            |
+| Paper and ink  | The base values, unchanged, in both modes                                                                                                  | —                                                                                                              |
+| Chip hues      | Rust only, for errors and an over-long post                                                                                                | The app has no taxonomy.                                                                                       |
+| Dark mode      | Supported: the base dark set as `light-dark()` tokens, following the system setting until the reader overrides it with the masthead toggle | Posts get written late in the evening as often as at a desk.                                                   |
+| Type scale     | `title` from 2rem on phones to the base maximum; `heading` lowered to 1.4rem; no `display`                                                 | Panel headings label tools, not chapters, and the title shares its row with two icon buttons on a 320px phone. |
+| Width          | `max-w-6xl` (72rem)                                                                                                                        | Two panels side by side from 64rem.                                                                            |
+| Density        | Toolbar buttons at 36px, 32px on phones narrower than 26rem                                                                                | Dense secondary controls that keep one row on a 360px phone; the copy button and options keep 44px.            |
 
 ## Additions
 
