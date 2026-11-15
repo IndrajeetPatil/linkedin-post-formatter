@@ -16,7 +16,7 @@ logo <- sticker(
     package = "linkedin-post-formatter",
     p_color = "#201d18",
     p_family = google_font_name,
-    p_size = 15,
+    p_size = 19,
     p_x = 1,
     p_y = 1.42,
     s_x = 1,
