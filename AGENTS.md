@@ -56,7 +56,7 @@ rewrite `main`, tags, or merged history.
 ## Prompts and skills
 
 - Reusable task prompts live in `.github/prompts/`: `address-review`,
-  `codex-security`, `simplify-codebase`, and `update-deps`.
+  `simplify-codebase`, and `update-deps`.
 
 - `.agents/skills/agent-browser/` is vendored upstream and recorded in
   `skills-lock.json`; update it with the Skills CLI as `update-deps`
