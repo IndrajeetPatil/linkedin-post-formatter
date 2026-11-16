@@ -1,8 +1,11 @@
 import "./style.css";
-import { type ChainedCommands, Editor } from "@tiptap/core";
+import { type ChainedCommands, Editor, Extension, type JSONContent } from "@tiptap/core";
+import BoldMark from "@tiptap/extension-bold";
 import Heading from "@tiptap/extension-heading";
+import ItalicMark from "@tiptap/extension-italic";
 import { Placeholder } from "@tiptap/extensions";
 import { Markdown } from "@tiptap/markdown";
+import { Fragment, type Node as ProseMirrorNode, type Schema, Slice } from "@tiptap/pm/model";
 import StarterKit from "@tiptap/starter-kit";
 import {
   Bold,
@@ -16,6 +19,7 @@ import {
   List,
   ListOrdered,
   Moon,
+  RemoveFormatting,
   SquareCode,
   Sun,
   Trash2,
@@ -73,6 +77,7 @@ createIcons({
     List,
     ListOrdered,
     Moon,
+    RemoveFormatting,
     SquareCode,
     Sun,
     Trash2,
@@ -115,6 +120,32 @@ const PostHeading = Heading.extend({
     },
 });
 
+// Bold and italic go to md2linkedin as HTML tags. Markdown's `*` and `**`
+// only count when they flank words in particular ways, so overlapping or
+// partial styles, such as italic ending where a bold colon begins, serialise
+// to delimiters that parse as literal asterisks; tags have no such rules.
+const HtmlBold = BoldMark.extend({
+  renderMarkdown: (node, h) => `<strong>${h.renderChildren(node)}</strong>`,
+});
+const HtmlItalic = ItalicMark.extend({
+  renderMarkdown: (node, h) => `<em>${h.renderChildren(node)}</em>`,
+});
+
+// Turns the selection, or the whole post when nothing is selected, into plain
+// paragraphs, as pasted text often brings formatting along.
+const clearFormatting = (chain: ChainedCommands) =>
+  chain
+    .command(({ state, commands }) => state.selection.empty && commands.selectAll())
+    .unsetAllMarks()
+    .clearNodes();
+
+const ClearFormatting = Extension.create({
+  name: "clearFormatting",
+  addKeyboardShortcuts() {
+    return { "Mod-\\": () => clearFormatting(this.editor.chain()).run() };
+  },
+});
+
 // Gmail, X, Facebook, and other sites draw emoji as images with the character
 // in `alt`, and copy them that way. The editor keeps no images, so it would
 // drop them; paste the characters instead.
@@ -128,27 +159,138 @@ function unwrapEmojiImages(html: string) {
   return doc.body.innerHTML;
 }
 
+// The draft is kept as the editor's JSON, which reloads exactly; Markdown
+// would lose spaces at some style boundaries. A Markdown draft still loads.
+function loadDraft(): { content: string | JSONContent; contentType: "json" | "markdown" } {
+  const draft = load(DRAFT_KEY);
+  if (draft === null) return { content: sample, contentType: "markdown" };
+  try {
+    const doc: unknown = JSON.parse(draft);
+    if ((doc as JSONContent | null)?.type === "doc") {
+      return { content: doc as JSONContent, contentType: "json" };
+    }
+  } catch {
+    // Not JSON, so a Markdown draft.
+  }
+  return { content: draft, contentType: "markdown" };
+}
+
+// Text copied from LinkedIn, or from this page's own output, spells its styles
+// in Unicode Mathematical Alphanumeric letters. md2linkedin restyles only
+// plain letters, so such text would ignore the toolbar. Pasting turns those
+// letters back into plain ones carrying the matching marks.
+const MATH = /[\u{1D400}-\u{1D7FF}]/u;
+// The block's 52-letter alphabets, in order, and the marks of those that
+// mean something here (the rest, such as script, paste as plain letters).
+const LETTERS = [
+  "bold",
+  "italic",
+  "bold italic",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "bold",
+  "italic",
+  "bold italic",
+  "code",
+];
+// Its runs of ten digits: bold, double-struck, sans, sans bold, and monospace.
+const DIGITS = ["bold", "", "", "bold", "code"];
+
+// The marks a character's style stands for, separated by spaces, or null for
+// a character outside the block.
+function mathStyle(codePoint: number): string | null {
+  if (codePoint < 0x1d400 || codePoint > 0x1d7ff) return null;
+  if (codePoint < 0x1d6a4) return LETTERS[Math.floor((codePoint - 0x1d400) / 52)] ?? "";
+  // Greek letters, which md2linkedin never writes, come before the digits.
+  return DIGITS[Math.floor((codePoint - 0x1d7ce) / 10)] ?? "";
+}
+
+const graphemes = new Intl.Segmenter("en", { granularity: "grapheme" });
+
+function unstyleText(node: ProseMirrorNode, parent: ProseMirrorNode, schema: Schema) {
+  // Graphemes keep an accent with the styled letter before it.
+  const chars = Array.from(graphemes.segment(node.text!), ({ segment }) => segment);
+  // Each character's styles, or null for one with no styled form, such as a
+  // space or punctuation, which joins the styles on both sides when they match.
+  const own = chars.map((char) => mathStyle(char.codePointAt(0)!));
+  const after: (string | null)[] = [];
+  for (let i = own.length - 1, next = null; i >= 0; i--) {
+    after[i] = next;
+    next = own[i] ?? next;
+  }
+  let before: string | null = null;
+  const styles = own.map((style, i) => {
+    if (style === null) return before !== null && before === after[i] ? before : "";
+    before = style;
+    return style;
+  });
+  const nodes: ProseMirrorNode[] = [];
+  let start = 0;
+  for (let i = 1; i <= chars.length; i++) {
+    if (i < chars.length && styles[i] === styles[start]) continue;
+    const text = chars
+      .slice(start, i)
+      .map((char) => (MATH.test(char) ? char.normalize("NFKC") : char))
+      .join("")
+      .normalize("NFC");
+    let marks = node.marks;
+    for (const name of styles[start]!.split(" ").filter(Boolean)) {
+      const type = schema.marks[name]!;
+      if (parent.type.allowsMarkType(type)) marks = type.create().addToSet(marks);
+    }
+    nodes.push(schema.text(text, marks));
+    start = i;
+  }
+  return nodes;
+}
+
+function unstyleFragment(fragment: Fragment, parent: ProseMirrorNode, schema: Schema): Fragment {
+  const nodes: ProseMirrorNode[] = [];
+  fragment.forEach((node) => {
+    if (node.isText && MATH.test(node.text!)) {
+      nodes.push(...unstyleText(node, parent, schema));
+    } else {
+      nodes.push(node.copy(unstyleFragment(node.content, node, schema)));
+    }
+  });
+  return Fragment.from(nodes);
+}
+
+function unstylePasted(slice: Slice, view: { state: { schema: Schema; doc: ProseMirrorNode } }) {
+  const { schema, doc } = view.state;
+  return new Slice(unstyleFragment(slice.content, doc, schema), slice.openStart, slice.openEnd);
+}
+
 const editor = new Editor({
   element: $("#editor"),
   extensions: [
     // Only the formatting md2linkedin can express in Unicode is on offer.
     StarterKit.configure({
       blockquote: false,
+      bold: false,
+      italic: false,
       heading: false,
       horizontalRule: false,
       strike: false,
       underline: false,
       link: { openOnClick: false },
     }),
+    HtmlBold,
+    HtmlItalic,
     PostHeading.configure({ levels: [1, 2, 3] }),
+    ClearFormatting,
     Markdown,
     Placeholder.configure({ placeholder: "Write your post…" }),
   ],
-  content: load(DRAFT_KEY) ?? sample,
-  contentType: "markdown",
+  ...loadDraft(),
   editorProps: {
     attributes: { "aria-label": "Post", "aria-multiline": "true", role: "textbox" },
     transformPastedHTML: unwrapEmojiImages,
+    transformPasted: unstylePasted,
   },
 });
 
@@ -169,7 +311,10 @@ const toolbar = $(".toolbar");
 const buttons = [...toolbar.querySelectorAll<HTMLButtonElement>("button")];
 const isMac = /Mac|iP(hone|ad)/.test(navigator.userAgent);
 
-for (const button of buttons) {
+const clearButton = $<HTMLButtonElement>("#clear");
+const clearFormattingButton = $<HTMLButtonElement>("#clear-formatting");
+
+for (const button of [...buttons, clearFormattingButton]) {
   const keys = button.dataset["keys"]!.split("-");
   const shortcut = isMac
     ? keys.map((k) => ({ Mod: "⌘", Alt: "⌥", Shift: "⇧" })[k] ?? k).join("")
@@ -180,14 +325,21 @@ for (const button of buttons) {
     keys.map((k) => ({ Mod: isMac ? "Meta" : "Control" })[k] ?? k).join("+"),
   );
   // Clicks keep focus and the selection in the editor; keyboard users still
-  // reach the buttons through the toolbar's tab stop.
+  // reach the buttons with Tab, and the editor keeps its selection meanwhile.
   button.addEventListener("mousedown", (event) => event.preventDefault());
+}
+
+for (const button of buttons) {
   button.addEventListener("click", () => {
     formats[button.dataset["format"]!]!.run(editor.chain().focus()).run();
   });
 }
 
-const clearButton = $<HTMLButtonElement>("#clear");
+clearFormattingButton.addEventListener("click", () => {
+  if (clearFormattingButton.ariaDisabled === "true") return;
+  clearFormatting(editor.chain().focus()).run();
+});
+
 clearButton.addEventListener("click", () => {
   if (clearButton.ariaDisabled === "true") return;
   editor.chain().focus().setContent("").run();
@@ -195,6 +347,7 @@ clearButton.addEventListener("click", () => {
 
 function syncToolbar() {
   clearButton.ariaDisabled = String(editor.isEmpty);
+  clearFormattingButton.ariaDisabled = String(editor.isEmpty);
   for (const button of buttons) {
     button.ariaPressed = String(editor.isActive(...formats[button.dataset["format"]!]!.active));
   }
@@ -269,7 +422,7 @@ worker.addEventListener("message", ({ data }: MessageEvent<ConvertResponse>) => 
 
 editor.on("transaction", syncToolbar);
 editor.on("update", () => {
-  save(DRAFT_KEY, editor.getMarkdown());
+  save(DRAFT_KEY, JSON.stringify(editor.getJSON()));
   convert();
 });
 for (const option of [monospaceCode, preserveLinks]) {

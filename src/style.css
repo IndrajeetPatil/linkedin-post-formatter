@@ -234,16 +234,21 @@ svg {
   gap: 1rem;
 }
 
-/* The clear button keeps a 32px target but overhangs the heading's line, so
+/* The clear buttons keep 32px targets but overhang the heading's line, so
    both panes' headings, and the panels under them, stay level. */
-#clear {
-  min-width: 2rem;
-  min-height: 2rem;
+.pane-actions {
+  display: flex;
+  gap: 0.25rem;
   margin-block: -0.5rem;
   align-self: center;
 }
 
-#clear[aria-disabled="true"] {
+.pane-actions .icon-button {
+  min-width: 2rem;
+  min-height: 2rem;
+}
+
+.pane-actions [aria-disabled="true"] {
   opacity: 0.4;
   cursor: default;
 }

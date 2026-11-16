@@ -159,6 +159,10 @@ test("clears the post, and the empty draft persists", async ({ page }) => {
   await clear.click();
   await expect(post).toHaveText("");
   await expect(clear).toHaveAttribute("aria-disabled", "true");
+  await expect(page.getByRole("button", { name: "Clear formatting" })).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
   await expect(page.getByRole("button", { name: "Heading", exact: true })).toHaveAttribute(
     "aria-pressed",
     "false",
@@ -241,4 +245,76 @@ test("fits a laptop window, scrolling a long post inside its panel", async ({ pa
   await expect(page.locator("#post")).toContainText("Line");
   expect(await overflow()).toBe(0);
   await expect(page.getByRole("button", { name: "Copy text" })).toBeInViewport();
+});
+
+test("styles overlapping bold and italic, and keeps them on reload", async ({ page }) => {
+  await page.goto("./");
+  const post = page.locator("#post");
+  await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+  await page.getByRole("button", { name: "Clear post" }).click();
+  await expect(post).toHaveText("");
+
+  // As Markdown, these would need delimiters that flank punctuation and
+  // spaces, which parse as literal asterisks.
+  await page.getByRole("textbox", { name: "Post" }).evaluate((editor) => {
+    const data = new DataTransfer();
+    data.setData(
+      "text/html",
+      "<ul><li><p><strong>zero </strong><em><strong>data</strong> retention</em><strong>:</strong> <em>no</em>, ok</p></li></ul>",
+    );
+    data.setData("text/plain", "zero data retention: no, ok");
+    const paste = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", { value: data });
+    editor.dispatchEvent(paste);
+  });
+  const styled = "• 𝘇𝗲𝗿𝗼 𝙙𝙖𝙩𝙖 𝘳𝘦𝘵𝘦𝘯𝘵𝘪𝘰𝘯: 𝘯𝘰, ok";
+  await expect(post).toHaveText(styled);
+
+  await page.reload();
+  await expect(post).toHaveText(styled, { timeout: 60_000 });
+});
+
+test("clears formatting from the selection, or else the whole post", async ({ page }) => {
+  await page.goto("./");
+  const post = page.locator("#post");
+  await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+  const clearFormatting = page.getByRole("button", { name: "Clear formatting" });
+
+  // Selecting the first line clears only its heading.
+  await page.getByRole("heading", { name: "Three lessons" }).selectText();
+  await clearFormatting.click();
+  await expect(post).toContainText("Three lessons from a weekend project\n\nI turned a 𝗣𝘆𝘁𝗵𝗼𝗻");
+
+  // With nothing selected, everything goes: styles, lists, and code.
+  await page.getByRole("textbox", { name: "Post" }).click();
+  await clearFormatting.click();
+  await expect(post).toContainText("I turned a Python package into a web page");
+  await expect(post).toContainText("Bold, italic, and both\ninline code and code blocks");
+  await expect(post).not.toContainText("•");
+});
+
+test("turns pasted Unicode styles into formatting the toolbar can change", async ({ page }) => {
+  await page.goto("./");
+  const post = page.locator("#post");
+  await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+  await page.getByRole("button", { name: "Clear post" }).click();
+  await expect(post).toHaveText("");
+
+  // Text copied from LinkedIn: italic with an accent, bold, and monospace.
+  const editor = page.getByRole("textbox", { name: "Post" });
+  await editor.evaluate((element) => {
+    const data = new DataTransfer();
+    data.setData("text/plain", "𝘤𝘢𝘧𝘦́ 𝘪𝘴 𝘧𝘳𝘦𝘦, 𝗯𝗼𝗹𝗱 and 𝚌𝚘𝚍𝚎");
+    const paste = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", { value: data });
+    element.dispatchEvent(paste);
+  });
+  await expect(editor.locator("em")).toHaveText("café is free");
+  await expect(editor.locator("strong")).toHaveText("bold");
+  await expect(editor.locator("code")).toHaveText("code");
+  await expect(post).toHaveText("𝘤𝘢𝘧𝘦́ 𝘪𝘴 𝘧𝘳𝘦𝘦, 𝗯𝗼𝗹𝗱 and 𝚌𝚘𝚍𝚎");
+
+  await editor.locator("em").selectText();
+  await page.getByRole("button", { name: "Bold" }).click();
+  await expect(post).toHaveText("𝙘𝙖𝙛𝙚́ 𝙞𝙨 𝙛𝙧𝙚𝙚, 𝗯𝗼𝗹𝗱 and 𝚌𝚘𝚍𝚎");
 });
