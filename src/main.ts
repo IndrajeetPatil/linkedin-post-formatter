@@ -194,11 +194,14 @@ if (!("focusGroup" in HTMLElement.prototype)) {
 
 const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
 let latest = 0;
+// The settled text of the latest request, or null while it is converting.
+let ready: string | null = null;
 // The text of the latest request, settled when its reply arrives. A copy made
 // while a conversion is pending waits for it, so it never copies stale text.
 let result = Promise.withResolvers<string>();
 
 function convert() {
+  ready = null;
   const next = Promise.withResolvers<string>();
   // A copy already waiting on the previous request waits for this one instead.
   result.resolve(next.promise);
@@ -224,6 +227,7 @@ worker.addEventListener("message", ({ data }: MessageEvent<ConvertResponse>) => 
     return;
   }
   const { text } = data;
+  ready = text;
   result.resolve(text);
   post.textContent = text;
   post.classList.toggle("empty", !text);
@@ -256,15 +260,43 @@ convert();
 
 let resetCopy: ReturnType<typeof setTimeout> | undefined;
 
-// Hands the clipboard a promise of the latest text, so a click made while a
-// conversion is pending still counts as the user's gesture in every browser.
+// The deprecated path, for browsers that refuse the Clipboard API. It only
+// works while the click still counts as the user's gesture.
+function legacyCopy(text: string) {
+  const field = Object.assign(document.createElement("textarea"), { value: text });
+  field.setAttribute("readonly", "");
+  // 16px keeps iOS from zooming in on the field.
+  field.style.cssText = "position:fixed;inset-block-start:0;opacity:0;font-size:16px";
+  document.body.append(field);
+  field.select();
+  // iOS ignores select() on a textarea; it needs an explicit range.
+  field.setSelectionRange(0, text.length);
+  try {
+    return document.execCommand("copy");
+  } finally {
+    field.remove();
+  }
+}
+
 async function writeLatest() {
-  const text = result.promise;
-  if ("ClipboardItem" in globalThis) {
-    const blob = text.then((value) => new Blob([value], { type: "text/plain" }));
-    await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })]);
-  } else {
-    await navigator.clipboard.writeText(await text);
+  // Text that is ready is written straight away, inside the click's gesture,
+  // which every browser accepts. A clipboard item backed by a promise is kept
+  // for a click made while a conversion is pending, since Safari only accepts
+  // a later write as the user's gesture in that form.
+  if (ready === null && "ClipboardItem" in globalThis) {
+    const blob = result.promise.then((value) => new Blob([value], { type: "text/plain" }));
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })]);
+      return;
+    } catch {
+      // Falls through to writing the text once it is ready.
+    }
+  }
+  const text = ready ?? (await result.promise);
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (error) {
+    if (!legacyCopy(text)) throw error;
   }
 }
 
