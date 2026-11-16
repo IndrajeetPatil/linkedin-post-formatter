@@ -15,6 +15,7 @@ on:
       - ".github/dependabot.yml"
       - ".github/workflows/actions.lock"
       - "*.md"
+      - "prek.toml"
       - "skills-lock.json"
       - "scripts/actions-lock.sh"
       - "scripts/record-demo.mjs"

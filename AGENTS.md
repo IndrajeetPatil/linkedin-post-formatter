@@ -22,7 +22,8 @@
 1. Work on a branch and deliver every change through a ready-for-review PR,
    never a draft.
 
-2. Before each commit, run `vp check` and `vp run e2e`. Never bypass hooks
+2. Install the Git hooks once with `prek install`. Before each commit, run
+   `prek run --all-files`, `vp check`, and `vp run e2e`. Never bypass hooks
    with `--no-verify` or `SKIP`.
 
 3. Use Conventional Commits for every commit and PR title, including merge,

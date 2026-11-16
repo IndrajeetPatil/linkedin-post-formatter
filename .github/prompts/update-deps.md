@@ -23,6 +23,10 @@ Keep the version pins consistent:
 - **Vite+:** update both `vite` and `vite-plus` in the `catalog` of
   `pnpm-workspace.yaml` to the same release.
 
+- **prek:** run `prek update` to refresh the frozen hook SHAs in
+  `prek.toml`, and keep `minimum_prek_version` no newer than the
+  `latest-known` version that the pinned `j178/prek-action` installs in CI.
+
 Do not mirror these versions into GitHub Actions files; `setup-vp` reads
 `.node-version` and `package.json` as its sources of truth.
 
