@@ -5,6 +5,17 @@ name: Pages
 on:
   push:
     branches: [main]
+    # Nothing here changes the published site.
+    paths-ignore:
+      - "docs/**"
+      - "hextools/**"
+      - ".agents/**"
+      - ".claude/**"
+      - ".github/prompts/**"
+      - ".github/dependabot.yml"
+      - "*.md"
+      - "skills-lock.json"
+      - "scripts/record-demo.mjs"
   workflow_dispatch:
 
 permissions: {}
