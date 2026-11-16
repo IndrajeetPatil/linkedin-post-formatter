@@ -1,5 +1,5 @@
-// Records the README demo: a post written in light mode and copied, saved as
-// docs/images/demo.gif. Needs ffmpeg and a running preview server:
+// Records the README demo, saved as docs/images/demo.gif: a post using every
+// format and pasted emoji, the options, the dark theme, and copying. Needs ffmpeg and a running preview server:
 //   PAGES_BASE=/linkedin-post-formatter/ vp build
 //   PAGES_BASE=/linkedin-post-formatter/ vp preview --port 4173
 //   node scripts/record-demo.mjs
@@ -31,9 +31,21 @@ const trim = (Date.now() - started) / 1000;
 const type = (text) => page.keyboard.type(text, { delay: 45 });
 const press = (name) => page.getByRole("button", { name, exact: true }).click();
 
-await page.getByRole("textbox", { name: "Post" }).click();
+const editor = page.getByRole("textbox", { name: "Post" });
+// Pastes HTML the way sites that draw emoji as images put it on the clipboard.
+const pasteEmoji = (emoji) =>
+  editor.evaluate((element, alt) => {
+    const data = new DataTransfer();
+    data.setData("text/html", `<img alt="${alt}" src="data:,">`);
+    const paste = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", { value: data });
+    element.dispatchEvent(paste);
+  }, emoji);
+
+await editor.click();
 await press("Heading");
-await type("Big news");
+await type("Big news ");
+await pasteEmoji("🚀");
 await page.keyboard.press("Enter");
 await type("I am ");
 await press("Bold");
@@ -45,17 +57,33 @@ await type("data engineer");
 await press("Italic");
 await type(".");
 await page.keyboard.press("Enter");
+await press("Subheading");
+await type("First steps");
+await page.keyboard.press("Enter");
+await press("Numbered list");
+await type("Learn ");
+await press("Inline code");
+await type("dbt");
+await press("Inline code");
+await page.keyboard.press("Enter");
+await type("Ship a pipeline");
+await page.keyboard.press("Enter");
+await page.keyboard.press("Enter");
+await press("Code block");
+await type("SELECT 'hello' AS team;");
+await page.keyboard.press("Enter");
+await page.keyboard.press("Enter");
+await page.keyboard.press("Enter");
 await press("Bulleted list");
-await type("Python and ");
-await press("Inline code");
-await type("SQL");
-await press("Inline code");
-await page.keyboard.press("Enter");
-await type("Fewer meetings, more shipping");
-await page.keyboard.press("Enter");
-await page.keyboard.press("Enter");
-await type("Thank you all!");
+await type("Thank you all! ");
+await pasteEmoji("🙏🏽");
 await page.waitForTimeout(800);
+await page.getByLabel("Monospace code").uncheck();
+await page.waitForTimeout(1000);
+await page.getByLabel("Monospace code").check();
+await page.waitForTimeout(600);
+await page.getByRole("button", { name: "Switch to dark theme" }).click();
+await page.waitForTimeout(1000);
 await page.getByRole("button", { name: "Copy text" }).click();
 await page.waitForTimeout(1800);
 

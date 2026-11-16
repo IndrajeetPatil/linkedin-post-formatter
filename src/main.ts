@@ -115,6 +115,19 @@ const PostHeading = Heading.extend({
     },
 });
 
+// Gmail, X, Facebook, and other sites draw emoji as images with the character
+// in `alt`, and copy them that way. The editor keeps no images, so it would
+// drop them; paste the characters instead.
+const EMOJI = /^\p{RGI_Emoji}+$/v;
+
+function unwrapEmojiImages(html: string) {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const images = [...doc.images].filter((img) => EMOJI.test(img.alt));
+  if (!images.length) return html;
+  for (const img of images) img.replaceWith(img.alt);
+  return doc.body.innerHTML;
+}
+
 const editor = new Editor({
   element: $("#editor"),
   extensions: [
@@ -135,6 +148,7 @@ const editor = new Editor({
   contentType: "markdown",
   editorProps: {
     attributes: { "aria-label": "Post", "aria-multiline": "true", role: "textbox" },
+    transformPastedHTML: unwrapEmojiImages,
   },
 });
 
