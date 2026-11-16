@@ -243,13 +243,18 @@
           <div class="post-actions">
             <div class="options">
               <label><input type="checkbox" id="monospace-code" checked /> Monospace code</label>
-              <label><input type="checkbox" id="preserve-links" /> Keep link URLs</label>
+              <label><input type="checkbox" id="preserve-links" /> Keep links</label>
             </div>
             <span class="copy">
-              <button type="button" id="copy" class="btn btn-primary" aria-disabled="true">
+              <button
+                type="button"
+                id="copy"
+                class="btn btn-primary"
+                aria-label="Copy text"
+                aria-disabled="true"
+              >
                 <i data-lucide="copy"></i>
                 <i data-lucide="check"></i>
-                Copy text
               </button>
               <span class="tip" role="status"></span>
             </span>
