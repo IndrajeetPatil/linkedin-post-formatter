@@ -105,9 +105,11 @@ sentence of explanation, and a colophon.
   stop. Toggles show their state with `aria-pressed`: an 8% accent tint and a
   40% accent outline. Tooltips name the action and its keyboard shortcut.
 
-- **Clear button:** a 32px trash icon button at the end of the editor's
+- **Clear buttons:** two 32px icon buttons at the end of the editor's
   heading, opposite the character count, overhanging the heading line so both
-  panels stay level. It dims to 40% and does nothing while the post is empty.
+  panels stay level. Clear formatting turns the selection, or the whole post
+  when nothing is selected, into plain paragraphs; the trash icon clears the
+  post. Both dim to 40% and do nothing while the post is empty.
 
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.

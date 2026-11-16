@@ -1,6 +1,8 @@
 import "./style.css";
-import { type ChainedCommands, Editor } from "@tiptap/core";
+import { type ChainedCommands, Editor, Extension, type JSONContent } from "@tiptap/core";
+import BoldMark from "@tiptap/extension-bold";
 import Heading from "@tiptap/extension-heading";
+import ItalicMark from "@tiptap/extension-italic";
 import { Placeholder } from "@tiptap/extensions";
 import { Markdown } from "@tiptap/markdown";
 import StarterKit from "@tiptap/starter-kit";
@@ -16,6 +18,7 @@ import {
   List,
   ListOrdered,
   Moon,
+  RemoveFormatting,
   SquareCode,
   Sun,
   Trash2,
@@ -73,6 +76,7 @@ createIcons({
     List,
     ListOrdered,
     Moon,
+    RemoveFormatting,
     SquareCode,
     Sun,
     Trash2,
@@ -115,6 +119,32 @@ const PostHeading = Heading.extend({
     },
 });
 
+// Bold and italic go to md2linkedin as HTML tags. Markdown's `*` and `**`
+// only count when they flank words in particular ways, so overlapping or
+// partial styles, such as italic ending where a bold colon begins, serialise
+// to delimiters that parse as literal asterisks; tags have no such rules.
+const HtmlBold = BoldMark.extend({
+  renderMarkdown: (node, h) => `<strong>${h.renderChildren(node)}</strong>`,
+});
+const HtmlItalic = ItalicMark.extend({
+  renderMarkdown: (node, h) => `<em>${h.renderChildren(node)}</em>`,
+});
+
+// Turns the selection, or the whole post when nothing is selected, into plain
+// paragraphs, as pasted text often brings formatting along.
+const clearFormatting = (chain: ChainedCommands) =>
+  chain
+    .command(({ state, commands }) => state.selection.empty && commands.selectAll())
+    .unsetAllMarks()
+    .clearNodes();
+
+const ClearFormatting = Extension.create({
+  name: "clearFormatting",
+  addKeyboardShortcuts() {
+    return { "Mod-\\": () => clearFormatting(this.editor.chain()).run() };
+  },
+});
+
 // Gmail, X, Facebook, and other sites draw emoji as images with the character
 // in `alt`, and copy them that way. The editor keeps no images, so it would
 // drop them; paste the characters instead.
@@ -128,24 +158,44 @@ function unwrapEmojiImages(html: string) {
   return doc.body.innerHTML;
 }
 
+// The draft is kept as the editor's JSON, which reloads exactly; Markdown
+// would lose spaces at some style boundaries. A Markdown draft still loads.
+function loadDraft(): { content: string | JSONContent; contentType: "json" | "markdown" } {
+  const draft = load(DRAFT_KEY);
+  if (draft === null) return { content: sample, contentType: "markdown" };
+  try {
+    const doc: unknown = JSON.parse(draft);
+    if ((doc as JSONContent | null)?.type === "doc") {
+      return { content: doc as JSONContent, contentType: "json" };
+    }
+  } catch {
+    // Not JSON, so a Markdown draft.
+  }
+  return { content: draft, contentType: "markdown" };
+}
+
 const editor = new Editor({
   element: $("#editor"),
   extensions: [
     // Only the formatting md2linkedin can express in Unicode is on offer.
     StarterKit.configure({
       blockquote: false,
+      bold: false,
+      italic: false,
       heading: false,
       horizontalRule: false,
       strike: false,
       underline: false,
       link: { openOnClick: false },
     }),
+    HtmlBold,
+    HtmlItalic,
     PostHeading.configure({ levels: [1, 2, 3] }),
+    ClearFormatting,
     Markdown,
     Placeholder.configure({ placeholder: "Write your post…" }),
   ],
-  content: load(DRAFT_KEY) ?? sample,
-  contentType: "markdown",
+  ...loadDraft(),
   editorProps: {
     attributes: { "aria-label": "Post", "aria-multiline": "true", role: "textbox" },
     transformPastedHTML: unwrapEmojiImages,
@@ -169,7 +219,10 @@ const toolbar = $(".toolbar");
 const buttons = [...toolbar.querySelectorAll<HTMLButtonElement>("button")];
 const isMac = /Mac|iP(hone|ad)/.test(navigator.userAgent);
 
-for (const button of buttons) {
+const clearButton = $<HTMLButtonElement>("#clear");
+const clearFormattingButton = $<HTMLButtonElement>("#clear-formatting");
+
+for (const button of [...buttons, clearFormattingButton]) {
   const keys = button.dataset["keys"]!.split("-");
   const shortcut = isMac
     ? keys.map((k) => ({ Mod: "⌘", Alt: "⌥", Shift: "⇧" })[k] ?? k).join("")
@@ -180,14 +233,21 @@ for (const button of buttons) {
     keys.map((k) => ({ Mod: isMac ? "Meta" : "Control" })[k] ?? k).join("+"),
   );
   // Clicks keep focus and the selection in the editor; keyboard users still
-  // reach the buttons through the toolbar's tab stop.
+  // reach the buttons with Tab, and the editor keeps its selection meanwhile.
   button.addEventListener("mousedown", (event) => event.preventDefault());
+}
+
+for (const button of buttons) {
   button.addEventListener("click", () => {
     formats[button.dataset["format"]!]!.run(editor.chain().focus()).run();
   });
 }
 
-const clearButton = $<HTMLButtonElement>("#clear");
+clearFormattingButton.addEventListener("click", () => {
+  if (clearFormattingButton.ariaDisabled === "true") return;
+  clearFormatting(editor.chain().focus()).run();
+});
+
 clearButton.addEventListener("click", () => {
   if (clearButton.ariaDisabled === "true") return;
   editor.chain().focus().setContent("").run();
@@ -195,6 +255,7 @@ clearButton.addEventListener("click", () => {
 
 function syncToolbar() {
   clearButton.ariaDisabled = String(editor.isEmpty);
+  clearFormattingButton.ariaDisabled = String(editor.isEmpty);
   for (const button of buttons) {
     button.ariaPressed = String(editor.isActive(...formats[button.dataset["format"]!]!.active));
   }
@@ -269,7 +330,7 @@ worker.addEventListener("message", ({ data }: MessageEvent<ConvertResponse>) => 
 
 editor.on("transaction", syncToolbar);
 editor.on("update", () => {
-  save(DRAFT_KEY, editor.getMarkdown());
+  save(DRAFT_KEY, JSON.stringify(editor.getJSON()));
   convert();
 });
 for (const option of [monospaceCode, preserveLinks]) {
