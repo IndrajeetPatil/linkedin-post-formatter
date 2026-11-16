@@ -54,6 +54,15 @@ Open, unmerged PR history may be tidied with
 `--force-with-lease=<branch>:<expected-sha>`. Never use bare `--force` or
 rewrite `main`, tags, or merged history.
 
+## Demo and screenshots
+
+- After a major UI change (a new or rearranged panel, toolbar, or control,
+  not a small tweak), refresh the visuals in their own PRs: re-record
+  `docs/images/demo.gif` with `scripts/record-demo.mjs`, and open a parallel
+  PR in `IndrajeetPatil/md2linkedin` that replaces `docs/assets/web-app.webp`
+  with a 1600×1075 capture of the sample post (a 1100×739 viewport at a
+  device scale factor of 16/11).
+
 ## Prompts and skills
 
 - Reusable task prompts live in `.github/prompts/`: `address-review`,
