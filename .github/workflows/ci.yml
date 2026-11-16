@@ -1,9 +1,9 @@
 name: CI
 
+# Every change reaches `main` through a pull request, so QA and tests run only
+# on pull requests; pushes to `main` only deploy (see pages.yml).
 on:
   pull_request:
-    branches: [main]
-  push:
     branches: [main]
 
 permissions:
@@ -40,13 +40,8 @@ jobs:
       - name: Filter changed files
         id: filter
         env:
-          EVENT: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha }}
         run: |
-          if [[ "$EVENT" != "pull_request" ]]; then
-            echo "app=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
           app=false
           while IFS= read -r file; do
             case "$file" in
@@ -98,14 +93,10 @@ jobs:
         run: vp check
 
   # Only the browser suite is skipped for inert changes; `check` still runs
-  # because `vp check` formats Markdown too.
-  #
-  # Every change reaches `main` through a pull request, so the tests run only
-  # on pull requests. On `main` this job just fills the caches: GitHub shares
-  # caches saved on the default branch with every pull request, but a cache
-  # saved in one pull request only with that pull request.
+  # because `vp check` formats Markdown too. The caches below are saved per pull
+  # request, so they speed up later pushes and reruns within the same one.
   e2e:
-    name: ${{ github.event_name == 'pull_request' && 'E2E' || 'E2E caches' }}
+    name: E2E
     needs: changes
     if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
@@ -153,28 +144,21 @@ jobs:
       # Only the browser downloads are cached; `--with-deps` still installs
       # the system libraries, and skips browsers that are already present.
       - name: Restore Playwright browsers
-        id: browsers-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.versions.outputs.playwright }}
 
       - name: Install browsers
-        if: ${{ github.event_name == 'pull_request' }}
         run: vp exec playwright install --with-deps chromium firefox webkit
 
-      - name: Download browsers for the cache
-        if: ${{ github.event_name == 'push' && steps.browsers-cache.outputs.cache-hit != 'true' }}
-        run: vp exec playwright install chromium firefox webkit
-
       - name: Run end-to-end tests
-        if: ${{ github.event_name == 'pull_request' }}
         run: vp run e2e
         env:
           CI: true
 
       - name: Upload Playwright report
-        if: ${{ failure() && github.event_name == 'pull_request' }}
+        if: ${{ failure() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-report
