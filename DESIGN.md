@@ -112,6 +112,10 @@ sentence of explanation, and a colophon.
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.
 
+- **Post headings:** the post's heading levels 1 to 3 are drawn as `h3` to
+  `h5` under the "Write" heading, so the page keeps a single `h1`: Fraunces
+  at 1.5rem and 1.25rem, then the body face at 1rem.
+
 ## Dark mode
 
 - **Switching:** a two-state icon button beside the GitHub link shows the

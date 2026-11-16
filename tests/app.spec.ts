@@ -155,3 +155,14 @@ test("clears the post, and the empty draft persists", async ({ page }) => {
   await expect(page.locator("#count")).toHaveText("0 / 3,000", { timeout: 60_000 });
   await expect(post).toHaveText("");
 });
+
+test("nests the post's headings under the page's own", async ({ page }) => {
+  await page.goto("./");
+  // The sample post's level-1 heading sits below "Write", which leaves the
+  // page one h1, and still converts as a level-1 heading.
+  await expect(
+    page.getByRole("heading", { name: "Three lessons from a weekend project", level: 3 }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page.locator("#post")).toContainText("𝗧𝗛𝗥𝗘𝗘 𝗟𝗘𝗦𝗦𝗢𝗡𝗦", { timeout: 60_000 });
+});
