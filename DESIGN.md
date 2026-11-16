@@ -92,7 +92,7 @@ sentence of explanation, and a colophon.
 | Chip hues      | Rust only, for errors and an over-long post                                                                                                | The app has no taxonomy.                                                                                       |
 | Dark mode      | Supported: the base dark set as `light-dark()` tokens, following the system setting until the reader overrides it with the masthead toggle | Posts get written late in the evening as often as at a desk.                                                   |
 | Type scale     | `title` from 2rem on phones to the base maximum; `heading` lowered to 1.4rem; no `display`                                                 | Panel headings label tools, not chapters, and the title shares its row with two icon buttons on a 320px phone. |
-| Width          | `max-w-6xl` (72rem)                                                                                                                        | Two panels side by side from 64rem.                                                                            |
+| Width          | `max-w-6xl` (72rem)                                                                                                                        | Two panels side by side from 56rem.                                                                            |
 | Density        | Toolbar buttons at 36px, 32px on phones narrower than 26rem                                                                                | Dense secondary controls that keep one row on a 360px phone; the copy button and options keep 44px.            |
 
 ## Additions
@@ -111,6 +111,11 @@ sentence of explanation, and a colophon.
 
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.
+- **Fit to the window:** with two panels side by side and at least 36rem of
+  height, the page is exactly the window's height. A compact masthead leaves
+  the rest to the panels, and a long post scrolls inside its panel, so the
+  copy button never drops below the fold.
+
 - **Page edges:** the page never scrolls sideways, down to a 320px phone, and
   `overscroll-behavior: none` on `html` and `body` stops rubber-band bouncing
   from exposing empty canvas past the top and bottom edges.

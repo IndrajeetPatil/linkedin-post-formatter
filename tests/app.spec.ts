@@ -225,3 +225,20 @@ test("keeps emoji pasted as images", async ({ page }) => {
   });
   await expect(post).toHaveText("Shipped 🚀 👍🏽");
 });
+
+test("fits a laptop window, scrolling a long post inside its panel", async ({ page }) => {
+  test.skip(test.info().project.name.match(/iphone|android/) !== null, "Phones stack the panels.");
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("./");
+  await expect(page.locator("#post")).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+  const overflow = () =>
+    page.evaluate(
+      () => document.documentElement.scrollHeight - document.documentElement.clientHeight,
+    );
+  expect(await overflow()).toBe(0);
+
+  await page.getByRole("textbox", { name: "Post" }).fill("Line\n".repeat(80));
+  await expect(page.locator("#post")).toContainText("Line");
+  expect(await overflow()).toBe(0);
+  await expect(page.getByRole("button", { name: "Copy text" })).toBeInViewport();
+});
