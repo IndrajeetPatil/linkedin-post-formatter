@@ -10,6 +10,7 @@
     "build": "vp build",
     "preview": "vp preview",
     "wheels": "scripts/build-wheels.sh",
+    "social-card": "node scripts/social-card.mjs",
     "e2e": "playwright test"
   },
   "dependencies": {

@@ -116,6 +116,25 @@ sentence of explanation, and a colophon.
   `h5` under the "Write" heading, so the page keeps a single `h1`: Fraunces
   at 1.5rem and 1.25rem, then the body face at 1rem.
 
+## Social card
+
+`public/social-card.png` is the 1200×630 image that link previews show.
+`scripts/social-card.mjs` renders it from the light tokens and the bundled
+fonts:
+
+- warm paper (`bg`), the ¶ mark in the accent, and `www.indrapatil.com` in
+  muted ink;
+
+- the title in Fraunces at 84px and weight 600, with one line of body text
+  below it;
+
+- the two facing panels as flat `surface` boxes with hairline borders and a
+  single teal arrow between them. The left shows the editor's bold, italic,
+  and code; the right shows md2linkedin's actual output for it.
+
+There is no dark variant, because a link preview has one image. Keep the text
+large enough to read at the 400px width that feeds often show.
+
 ## Dark mode
 
 - **Switching:** a two-state icon button beside the GitHub link shows the
