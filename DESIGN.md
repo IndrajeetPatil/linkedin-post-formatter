@@ -108,6 +108,9 @@ sentence of explanation, and a colophon.
   panels stay level. It dims to 40% and does nothing while the post is empty.
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.
+- **Page edges:** the page never scrolls sideways, down to a 320px phone, and
+  `overscroll-behavior: none` on `html` and `body` stops rubber-band bouncing
+  from exposing empty canvas past the top and bottom edges.
 
 ## Dark mode
 
