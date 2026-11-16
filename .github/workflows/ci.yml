@@ -52,7 +52,8 @@ jobs:
             case "$file" in
               src/*) app=true ;;
               docs/* | hextools/* | .agents/* | .claude/* | .github/prompts/* | \
-                .github/dependabot.yml | LICENSE.md | skills-lock.json | \
+                .github/dependabot.yml | .github/workflows/actions.lock | \
+                LICENSE.md | skills-lock.json | scripts/actions-lock.sh | \
                 scripts/record-demo.mjs) ;;
               */*) app=true ;;
               *.md) ;;
