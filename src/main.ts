@@ -1,5 +1,6 @@
 import "./style.css";
 import { type ChainedCommands, Editor } from "@tiptap/core";
+import Heading from "@tiptap/extension-heading";
 import { Placeholder } from "@tiptap/extensions";
 import { Markdown } from "@tiptap/markdown";
 import StarterKit from "@tiptap/starter-kit";
@@ -102,18 +103,31 @@ addEventListener("storage", ({ key }) => key === THEME_KEY && applyScheme());
 
 // ── Editor ──────────────────────────────────────────────────────────────────
 
+// The page has one h1, and the post's headings belong under the "Write" h2,
+// so the editor draws heading levels 1 to 3 as h3 to h5. Only what is on
+// screen changes: the clipboard and the Markdown still see levels 1 to 3.
+const PostHeading = Heading.extend({
+  addNodeView:
+    () =>
+    ({ node }) => {
+      const dom = document.createElement(`h${Number(node.attrs["level"]) + 2}`);
+      return { dom, contentDOM: dom };
+    },
+});
+
 const editor = new Editor({
   element: $("#editor"),
   extensions: [
     // Only the formatting md2linkedin can express in Unicode is on offer.
     StarterKit.configure({
       blockquote: false,
+      heading: false,
       horizontalRule: false,
       strike: false,
       underline: false,
-      heading: { levels: [1, 2, 3] },
       link: { openOnClick: false },
     }),
+    PostHeading.configure({ levels: [1, 2, 3] }),
     Markdown,
     Placeholder.configure({ placeholder: "Write your post…" }),
   ],
