@@ -11,7 +11,12 @@ export default defineConfig({
   assetsInclude: ["**/*.whl"],
   // Pyodide locates its runtime files itself, so it is left unbundled in dev.
   optimizeDeps: { exclude: ["pyodide"] },
-  build: { rolldownOptions: { output: { assetFileNames } } },
+  build: {
+    rolldownOptions: {
+      input: { main: "index.html", privacy: "privacy/index.html" },
+      output: { assetFileNames },
+    },
+  },
   worker: { format: "es", rolldownOptions: { output: { assetFileNames } } },
   fmt: { ignorePatterns: ["src/wheels/**"] },
   lint: {
