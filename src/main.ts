@@ -336,7 +336,7 @@ function convert() {
   // A copy already waiting on the previous request waits for this one instead.
   result.resolve(next.promise);
   // Failures surface through the copy button and the error banner.
-  next.promise.catch(() => undefined);
+  next.promise.catch(() => {});
   result = next;
   const request: ConvertRequest = {
     id: ++latest,

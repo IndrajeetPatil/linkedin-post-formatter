@@ -49,7 +49,7 @@ jobs:
               docs/* | hextools/* | .agents/* | .claude/* | .github/prompts/* | \
                 .github/dependabot.yml | .github/workflows/actions.lock | \
                 LICENSE.md | prek.toml | skills-lock.json | scripts/actions-lock.sh | \
-                scripts/record-demo.mjs) ;;
+                scripts/record-demo.mjs | _typos.toml | .rumdl.toml | lychee.toml) ;;
               */*) app=true ;;
               *.md) ;;
               *) app=true ;;
@@ -61,12 +61,87 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
+
+      - name: Actions lockfile (gh actions-lock --verify)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh extension install github/gh-actions-lock --pin v0.4.1
+          scripts/actions-lock.sh --verify
+
+      # Prebuilt Rust and Go binaries install in seconds, unlike Node-based
+      # equivalents. Each archive is verified against a pinned SHA-256.
+      - name: Install pinned QA tools
+        env:
+          LYCHEE_VERSION: "0.24.2"
+          LYCHEE_SHA256: 1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a
+          TYPOS_VERSION: "1.52.2"
+          TYPOS_SHA256: 3b13d1291281d39d01822e54035636487a7a0f228e70097899b1e33aeb0e7e93
+          RUMDL_VERSION: "0.3.4"
+          RUMDL_SHA256: 2e64c7654906f0df82218fcc73cbdded2e41f37961f5be3e876e708bdf42e367
+          GITLEAKS_VERSION: "8.30.1"
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+          ACTIONLINT_VERSION: "1.7.12"
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+          ZIZMOR_VERSION: "1.32.0"
+          ZIZMOR_SHA256: bb110cc765eca9cd7efb2e284a956be5974c60027b0970f16397d86208a9957b
+        run: |
+          bin_dir="$RUNNER_TEMP/qa-bin"
+          mkdir -p "$bin_dir"
+
+          install_tool() {
+            local name="$1" url="$2" sha256="$3"
+            local archive="$RUNNER_TEMP/$name.tar.gz" unpack="$RUNNER_TEMP/$name-unpack"
+            curl --fail --location --silent --show-error --retry 3 --output "$archive" "$url"
+            echo "$sha256  $archive" | sha256sum --check --quiet
+            mkdir -p "$unpack"
+            tar --extract --gzip --file "$archive" --directory "$unpack"
+            install -m 0755 "$(find "$unpack" -type f -name "$name" -print -quit)" "$bin_dir/$name"
+          }
+
+          gh_release="https://github.com"
+          install_tool lychee "$gh_release/lycheeverse/lychee/releases/download/lychee-v${LYCHEE_VERSION}/lychee-x86_64-unknown-linux-gnu.tar.gz" "$LYCHEE_SHA256"
+          install_tool typos "$gh_release/crate-ci/typos/releases/download/v${TYPOS_VERSION}/typos-v${TYPOS_VERSION}-x86_64-unknown-linux-musl.tar.gz" "$TYPOS_SHA256"
+          install_tool rumdl "$gh_release/rvben/rumdl/releases/download/v${RUMDL_VERSION}/rumdl-v${RUMDL_VERSION}-x86_64-unknown-linux-musl.tar.gz" "$RUMDL_SHA256"
+          install_tool gitleaks "$gh_release/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" "$GITLEAKS_SHA256"
+          install_tool actionlint "$gh_release/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" "$ACTIONLINT_SHA256"
+          install_tool zizmor "$gh_release/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/zizmor-x86_64-unknown-linux-gnu.tar.gz" "$ZIZMOR_SHA256"
+
+          echo "$bin_dir" >> "$GITHUB_PATH"
+
+      - name: Start link check (lychee)
+        id: lychee-start
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          # The inner script expands its own variables, so it is single-quoted.
+          # shellcheck disable=SC2016
+          nohup bash -c 'lychee --no-progress --include-fragments --require-https . > "$RUNNER_TEMP/lychee.log" 2>&1; echo "$?" > "$RUNNER_TEMP/lychee.status"' \
+            > /dev/null 2>&1 &
+
+      - name: Spelling (typos)
+        run: typos --color always
+
+      - name: Markdown lint (rumdl)
+        run: rumdl check --color always .
+
+      - name: Workflow lint (actionlint)
+        run: actionlint -color
+
+      - name: Workflow audit (zizmor)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: zizmor --color=always .github/workflows/
+
+      - name: Secret scan (Gitleaks)
+        run: gitleaks git --log-opts="--all" --no-banner --redact --verbose --log-level=warn .
 
       - name: Install Vite+
         uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
@@ -81,16 +156,38 @@ jobs:
       - name: prek hooks
         uses: j178/prek-action@7b101f8338a08d2bd6fdb3625e4e7692428763a3 # v3.1.1
         with:
-          # Newest prek in this action revision's SHA256 table, so the download
-          # stays checksum-verified and moves with the action pin.
           prek-version: latest-known
           extra-args: --all-files --stage pre-commit
         env:
           # The next step runs the same `vp check`; don't run it twice.
           SKIP: vite-plus
 
-      - name: Format, lint, and type-check
-        run: vp check
+      - name: Format, lint, and types (vp run check)
+        run: vp run check
+
+      - name: TypeScript types (vp run typecheck)
+        run: vp run typecheck
+
+      - name: Unit tests and coverage (vp run test)
+        run: vp run test
+
+      - name: Dependency audit (production)
+        run: vp pm audit -- --prod
+
+      - name: Link check (lychee)
+        if: ${{ !cancelled() && steps.lychee-start.outcome == 'success' }}
+        run: |
+          for _ in $(seq 1 300); do
+            [[ -f "$RUNNER_TEMP/lychee.status" ]] && break
+            sleep 2
+          done
+          [[ -f "$RUNNER_TEMP/lychee.status" ]] || {
+            echo "::error::lychee did not finish within 10 minutes"
+            cat "$RUNNER_TEMP/lychee.log"
+            exit 1
+          }
+          cat "$RUNNER_TEMP/lychee.log"
+          exit "$(cat "$RUNNER_TEMP/lychee.status")"
 
   # Only the browser suite is skipped for inert changes; `check` still runs
   # because `vp check` formats Markdown too. The caches below are saved per pull

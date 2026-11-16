@@ -28,11 +28,14 @@ await page.goto(url);
 await page.locator("#post.empty").waitFor();
 const trim = (Date.now() - started) / 1000;
 
+/** @param {string} text */
 const type = (text) => page.keyboard.type(text, { delay: 45 });
+/** @param {string} name */
 const press = (name) => page.getByRole("button", { name, exact: true }).click();
 
 const editor = page.getByRole("textbox", { name: "Post" });
 // Pastes HTML the way sites that draw emoji as images put it on the clipboard.
+/** @param {string} emoji */
 const pasteEmoji = (emoji) =>
   editor.evaluate((element, alt) => {
     const data = new DataTransfer();
@@ -87,7 +90,8 @@ await page.waitForTimeout(1000);
 await page.getByRole("button", { name: "Copy text" }).click();
 await page.waitForTimeout(1800);
 
-const video = await page.video().path();
+const video = await page.video()?.path();
+if (!video) throw new Error("Video recording failed");
 await context.close();
 await browser.close();
 

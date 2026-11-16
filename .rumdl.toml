@@ -1,0 +1,25 @@
+# rumdl (Markdown linter) configuration
+# Run: rumdl check .
+
+[global]
+# The prose in AGENTS.md, README.md, and docs/ is deliberately written in long,
+# unwrapped lines so that editing a sentence does not reflow the paragraph and
+# produce a noisy diff. Everything else rumdl checks is enabled.
+disable = [
+  "MD013", # line length — see above
+  # First line must be a top-level heading. The files under .github/prompts/
+  # are agent prompts whose required shape is YAML frontmatter followed by
+  # instructions, with no heading at all.
+  "MD041",
+  # Inline HTML is used for alignment and badges (e.g. logo image in README).
+  "MD033",
+]
+
+exclude = ["node_modules", "dist", ".agents", "src/wheels", "coverage"]
+
+[MD025]
+# Disable frontmatter-title detection. DESIGN.md's frontmatter is a design-token
+# document that contains a nested `title:` typography token; rumdl matches the
+# key naively, concludes the document already has a title, and then flags the
+# real `# DESIGN.md` heading as a duplicate H1.
+front-matter-title = ""
