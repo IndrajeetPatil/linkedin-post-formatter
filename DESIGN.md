@@ -116,6 +116,9 @@ sentence of explanation, and a colophon.
   `h5` under the "Write" heading, so the page keeps a single `h1`: Fraunces
   at 1.5rem and 1.25rem, then the body face at 1rem.
 
+- **Browser chrome:** `theme-color` is the paper colour of the system scheme,
+  `bg` in light and `bg-dark` in dark; the masthead toggle does not change it.
+
 ## Social card
 
 `public/social-card.png` is the 1200×630 image that link previews show.
