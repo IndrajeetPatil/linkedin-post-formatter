@@ -103,6 +103,9 @@ sentence of explanation, and a colophon.
 - **Formatting toolbar:** a `role="toolbar"` row of icon buttons with one tab
   stop. Toggles show their state with `aria-pressed`: an 8% accent tint and a
   40% accent outline. Tooltips name the action and its keyboard shortcut.
+- **Clear button:** a 32px trash icon button at the end of the editor's
+  heading, opposite the character count, overhanging the heading line so both
+  panels stay level. It dims to 40% and does nothing while the post is empty.
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.
 
