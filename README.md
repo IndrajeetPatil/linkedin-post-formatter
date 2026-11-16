@@ -20,6 +20,8 @@ reader's device.
 - [Tiptap](https://tiptap.dev/) and its Markdown extension turn the formatted
   text into Markdown. Bold and italic are written as `<strong>` and `<em>`
   tags, since Markdown's `*` and `**` cannot express every overlap of the two.
+  Text pasted with Unicode styles, such as a LinkedIn post, becomes plain
+  letters with the matching formatting, so the toolbar can change it.
 
 - A Web Worker loads Pyodide from jsDelivr and installs three wheels served
   with the page: `md2linkedin`, and its native dependencies `comrak` (Rust)

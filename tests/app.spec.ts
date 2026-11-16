@@ -292,3 +292,29 @@ test("clears formatting from the selection, or else the whole post", async ({ pa
   await expect(post).toContainText("Bold, italic, and both\ninline code and code blocks");
   await expect(post).not.toContainText("•");
 });
+
+test("turns pasted Unicode styles into formatting the toolbar can change", async ({ page }) => {
+  await page.goto("./");
+  const post = page.locator("#post");
+  await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+  await page.getByRole("button", { name: "Clear post" }).click();
+  await expect(post).toHaveText("");
+
+  // Text copied from LinkedIn: italic with an accent, bold, and monospace.
+  const editor = page.getByRole("textbox", { name: "Post" });
+  await editor.evaluate((element) => {
+    const data = new DataTransfer();
+    data.setData("text/plain", "𝘤𝘢𝘧𝘦́ 𝘪𝘴 𝘧𝘳𝘦𝘦, 𝗯𝗼𝗹𝗱 and 𝚌𝚘𝚍𝚎");
+    const paste = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", { value: data });
+    element.dispatchEvent(paste);
+  });
+  await expect(editor.locator("em")).toHaveText("café is free");
+  await expect(editor.locator("strong")).toHaveText("bold");
+  await expect(editor.locator("code")).toHaveText("code");
+  await expect(post).toHaveText("𝘤𝘢𝘧𝘦́ 𝘪𝘴 𝘧𝘳𝘦𝘦, 𝗯𝗼𝗹𝗱 and 𝚌𝚘𝚍𝚎");
+
+  await editor.locator("em").selectText();
+  await page.getByRole("button", { name: "Bold" }).click();
+  await expect(post).toHaveText("𝙘𝙖𝙛𝙚́ 𝙞𝙨 𝙛𝙧𝙚𝙚, 𝗯𝗼𝗹𝗱 and 𝚌𝚘𝚍𝚎");
+});

@@ -5,6 +5,7 @@ import Heading from "@tiptap/extension-heading";
 import ItalicMark from "@tiptap/extension-italic";
 import { Placeholder } from "@tiptap/extensions";
 import { Markdown } from "@tiptap/markdown";
+import { Fragment, type Node as ProseMirrorNode, type Schema, Slice } from "@tiptap/pm/model";
 import StarterKit from "@tiptap/starter-kit";
 import {
   Bold,
@@ -174,6 +175,96 @@ function loadDraft(): { content: string | JSONContent; contentType: "json" | "ma
   return { content: draft, contentType: "markdown" };
 }
 
+// Text copied from LinkedIn, or from this page's own output, spells its styles
+// in Unicode Mathematical Alphanumeric letters. md2linkedin restyles only
+// plain letters, so such text would ignore the toolbar. Pasting turns those
+// letters back into plain ones carrying the matching marks.
+const MATH = /[\u{1D400}-\u{1D7FF}]/u;
+// The block's 52-letter alphabets, in order, and the marks of those that
+// mean something here (the rest, such as script, paste as plain letters).
+const LETTERS = [
+  "bold",
+  "italic",
+  "bold italic",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "bold",
+  "italic",
+  "bold italic",
+  "code",
+];
+// Its runs of ten digits: bold, double-struck, sans, sans bold, and monospace.
+const DIGITS = ["bold", "", "", "bold", "code"];
+
+// The marks a character's style stands for, separated by spaces, or null for
+// a character outside the block.
+function mathStyle(codePoint: number): string | null {
+  if (codePoint < 0x1d400 || codePoint > 0x1d7ff) return null;
+  if (codePoint < 0x1d6a4) return LETTERS[Math.floor((codePoint - 0x1d400) / 52)] ?? "";
+  // Greek letters, which md2linkedin never writes, come before the digits.
+  return DIGITS[Math.floor((codePoint - 0x1d7ce) / 10)] ?? "";
+}
+
+const graphemes = new Intl.Segmenter("en", { granularity: "grapheme" });
+
+function unstyleText(node: ProseMirrorNode, parent: ProseMirrorNode, schema: Schema) {
+  // Graphemes keep an accent with the styled letter before it.
+  const chars = Array.from(graphemes.segment(node.text!), ({ segment }) => segment);
+  // Each character's styles, or null for one with no styled form, such as a
+  // space or punctuation, which joins the styles on both sides when they match.
+  const own = chars.map((char) => mathStyle(char.codePointAt(0)!));
+  const after: (string | null)[] = [];
+  for (let i = own.length - 1, next = null; i >= 0; i--) {
+    after[i] = next;
+    next = own[i] ?? next;
+  }
+  let before: string | null = null;
+  const styles = own.map((style, i) => {
+    if (style === null) return before !== null && before === after[i] ? before : "";
+    before = style;
+    return style;
+  });
+  const nodes: ProseMirrorNode[] = [];
+  let start = 0;
+  for (let i = 1; i <= chars.length; i++) {
+    if (i < chars.length && styles[i] === styles[start]) continue;
+    const text = chars
+      .slice(start, i)
+      .map((char) => (MATH.test(char) ? char.normalize("NFKC") : char))
+      .join("")
+      .normalize("NFC");
+    let marks = node.marks;
+    for (const name of styles[start]!.split(" ").filter(Boolean)) {
+      const type = schema.marks[name]!;
+      if (parent.type.allowsMarkType(type)) marks = type.create().addToSet(marks);
+    }
+    nodes.push(schema.text(text, marks));
+    start = i;
+  }
+  return nodes;
+}
+
+function unstyleFragment(fragment: Fragment, parent: ProseMirrorNode, schema: Schema): Fragment {
+  const nodes: ProseMirrorNode[] = [];
+  fragment.forEach((node) => {
+    if (node.isText && MATH.test(node.text!)) {
+      nodes.push(...unstyleText(node, parent, schema));
+    } else {
+      nodes.push(node.copy(unstyleFragment(node.content, node, schema)));
+    }
+  });
+  return Fragment.from(nodes);
+}
+
+function unstylePasted(slice: Slice, view: { state: { schema: Schema; doc: ProseMirrorNode } }) {
+  const { schema, doc } = view.state;
+  return new Slice(unstyleFragment(slice.content, doc, schema), slice.openStart, slice.openEnd);
+}
+
 const editor = new Editor({
   element: $("#editor"),
   extensions: [
@@ -199,6 +290,7 @@ const editor = new Editor({
   editorProps: {
     attributes: { "aria-label": "Post", "aria-multiline": "true", role: "textbox" },
     transformPastedHTML: unwrapEmojiImages,
+    transformPasted: unstylePasted,
   },
 });
 
