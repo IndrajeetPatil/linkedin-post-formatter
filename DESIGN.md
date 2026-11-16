@@ -100,14 +100,46 @@ sentence of explanation, and a colophon.
 - **Post preview:** set in the system face at 14px, as LinkedIn sets posts,
   so the Unicode styles show as readers will see them. This is the only text
   outside the two base families.
+
 - **Formatting toolbar:** a `role="toolbar"` row of icon buttons with one tab
   stop. Toggles show their state with `aria-pressed`: an 8% accent tint and a
   40% accent outline. Tooltips name the action and its keyboard shortcut.
+
 - **Clear button:** a 32px trash icon button at the end of the editor's
   heading, opposite the character count, overhanging the heading line so both
   panels stay level. It dims to 40% and does nothing while the post is empty.
+
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.
+- **Page edges:** the page never scrolls sideways, down to a 320px phone, and
+  `overscroll-behavior: none` on `html` and `body` stops rubber-band bouncing
+  from exposing empty canvas past the top and bottom edges.
+
+- **Post headings:** the post's heading levels 1 to 3 are drawn as `h3` to
+  `h5` under the "Write" heading, so the page keeps a single `h1`: Fraunces
+  at 1.5rem and 1.25rem, then the body face at 1rem.
+
+- **Browser chrome:** `theme-color` is the paper colour of the system scheme,
+  `bg` in light and `bg-dark` in dark; the masthead toggle does not change it.
+
+## Social card
+
+`public/social-card.png` is the 1200×630 image that link previews show.
+`scripts/social-card.mjs` renders it from the light tokens and the bundled
+fonts:
+
+- warm paper (`bg`), the ¶ mark in the accent, and `www.indrapatil.com` in
+  muted ink;
+
+- the title in Fraunces at 84px and weight 600, with one line of body text
+  below it;
+
+- the two facing panels as flat `surface` boxes with hairline borders and a
+  single teal arrow between them. The left shows the editor's bold, italic,
+  and code; the right shows md2linkedin's actual output for it.
+
+There is no dark variant, because a link preview has one image. Keep the text
+large enough to read at the 400px width that feeds often show.
 
 ## Dark mode
 
