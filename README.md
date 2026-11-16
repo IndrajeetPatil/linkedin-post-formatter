@@ -32,6 +32,9 @@ reader's device.
 - The worker calls `md2linkedin.convert()` on every edit and returns the
   text.
 
+- `privacy/index.html` is a second page, the privacy notice, linked from the
+  masthead.
+
 ## Development
 
 Needs Node.js 26 with [Vite+](https://viteplus.dev/) (`vp`),

@@ -318,3 +318,20 @@ test("turns pasted Unicode styles into formatting the toolbar can change", async
   await page.getByRole("button", { name: "Bold" }).click();
   await expect(post).toHaveText("𝙘𝙖𝙛𝙚́ 𝙞𝙨 𝙛𝙧𝙚𝙚, 𝗯𝗼𝗹𝗱 and 𝚌𝚘𝚍𝚎");
 });
+
+test("links to a privacy notice and back", async ({ page }) => {
+  await page.goto("./");
+  await page.getByRole("link", { name: "Privacy" }).click();
+  await expect(page).toHaveURL(/\/privacy\/$/);
+  await expect(page).toHaveTitle("Privacy · LinkedIn Post Formatter");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy");
+  await expect(page.getByRole("heading", { name: "Your post stays with you" })).toBeVisible();
+
+  // The masthead's theme toggle works here too.
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.getByRole("button", { name: "Switch to dark theme" }).click();
+  await expect(page.getByRole("button", { name: "Switch to light theme" })).toBeVisible();
+
+  await page.getByRole("link", { name: "← LinkedIn Post Formatter" }).click();
+  await expect(page.getByRole("textbox", { name: "Post" })).toBeVisible();
+});
