@@ -9,7 +9,9 @@ Run `vp update` to update JavaScript dependencies within their declared
 ranges, then review newer releases outside those ranges (`vp outdated`) and
 upgrade them where they are compatible. Iterate on the codebase until
 `vp check`, `vp build`, and `vp run e2e` pass, fixing any breaking changes,
-type errors, or compatibility issues that the upgrades introduce.
+type errors, or compatibility issues that the upgrades introduce. Run
+`vp pm audit` and resolve any advisory it reports, upgrading the affected
+package or, for a transitive one, adding a pnpm override.
 
 Keep the version pins consistent:
 
@@ -47,6 +49,11 @@ Check current first-party documentation and releases for every action used in
 `# vX.Y.Z` comment; when updating, replace both the SHA and the version comment
 with the latest stable release. Reference `IndrajeetPatil/workflows` reusable
 workflows as `@main`, never a SHA.
+
+Take each SHA from the GitHub API, never from a web page or changelog:
+`gh api repos/<owner>/<repo>/commits/<tag> --jq .sha` resolves the tag,
+including annotated tags, to its commit. Run the same lookup for pins you leave
+unchanged, so that every SHA matches the release in its comment.
 
 When the `@playwright/test` version changes, the CI job installs the matching
 browsers with `vp exec playwright install`; there is no separate image to
