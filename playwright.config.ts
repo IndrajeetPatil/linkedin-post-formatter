@@ -11,6 +11,9 @@ export default defineConfig({
   // GitHub's hosted runners for public repositories have 4 vCPUs; use them
   // all on CI instead of Playwright's default of half the cores.
   workers: process.env["CI"] ? 4 : undefined,
+  // Spread individual tests, not whole files, across the workers; each test
+  // opens its own page, so none depends on another.
+  fullyParallel: true,
   use: { baseURL: `http://localhost:4173${base}` },
   projects: [
     { name: "chromium", use: devices["Desktop Chrome"] },
