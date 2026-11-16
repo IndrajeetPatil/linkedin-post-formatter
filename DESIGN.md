@@ -118,6 +118,7 @@ sentence of explanation, and links to the privacy notice and the source.
 
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.
+
 - **Fit to the window:** with two panels side by side and at least 36rem of
   height, the page is exactly the window's height. A compact masthead leaves
   the rest to the panels, and a long post scrolls inside its panel, so the
