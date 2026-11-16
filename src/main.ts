@@ -17,6 +17,7 @@ import {
   Moon,
   SquareCode,
   Sun,
+  Trash2,
 } from "lucide";
 import type { ConvertRequest, ConvertResponse } from "./protocol.ts";
 import sample from "./sample.md?raw";
@@ -73,6 +74,7 @@ createIcons({
     Moon,
     SquareCode,
     Sun,
+    Trash2,
   },
   attrs: { "aria-hidden": "true" },
 });
@@ -157,7 +159,14 @@ for (const button of buttons) {
   });
 }
 
+const clearButton = $<HTMLButtonElement>("#clear");
+clearButton.addEventListener("click", () => {
+  if (clearButton.ariaDisabled === "true") return;
+  editor.chain().focus().setContent("").run();
+});
+
 function syncToolbar() {
+  clearButton.ariaDisabled = String(editor.isEmpty);
   for (const button of buttons) {
     button.ariaPressed = String(editor.isActive(...formats[button.dataset["format"]!]!.active));
   }

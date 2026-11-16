@@ -227,6 +227,20 @@ svg {
   gap: 1rem;
 }
 
+/* The clear button keeps a 32px target but overhangs the heading's line, so
+   both panes' headings, and the panels under them, stay level. */
+#clear {
+  min-width: 2rem;
+  min-height: 2rem;
+  margin-block: -0.5rem;
+  align-self: center;
+}
+
+#clear[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: default;
+}
+
 .pane h2 {
   font-size: 1.4rem;
   line-height: 1.15;

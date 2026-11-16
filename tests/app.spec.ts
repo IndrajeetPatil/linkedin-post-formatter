@@ -135,3 +135,23 @@ test("copies the latest edit while it is still converting", async ({
   const copied = await page.evaluate(async () => navigator.clipboard.readText());
   expect(copied).toMatch(/Fresh text|𝗙𝗥𝗘𝗦𝗛 𝗧𝗘𝗫𝗧/u);
 });
+
+test("clears the post, and the empty draft persists", async ({ page }) => {
+  await page.goto("./");
+  const post = page.locator("#post");
+  await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+
+  const clear = page.getByRole("button", { name: "Clear post" });
+  await clear.click();
+  await expect(post).toHaveText("");
+  await expect(clear).toHaveAttribute("aria-disabled", "true");
+  await expect(page.getByRole("button", { name: "Heading", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
+
+  // The cleared draft is what a reload brings back.
+  await page.reload();
+  await expect(page.locator("#count")).toHaveText("0 / 3,000", { timeout: 60_000 });
+  await expect(post).toHaveText("");
+});
