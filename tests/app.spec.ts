@@ -201,3 +201,27 @@ test("describes itself to search engines and link previews", async ({ page, requ
   expect(card.headers()["content-type"]).toBe("image/png");
   expect((await request.get("sitemap.xml")).ok()).toBe(true);
 });
+
+test("keeps emoji pasted as images", async ({ page }) => {
+  await page.goto("./");
+  const post = page.locator("#post");
+  await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+  await page.getByRole("button", { name: "Clear post" }).click();
+  await expect(post).toHaveText("");
+
+  // Sites that draw emoji as images copy them as <img alt="…">; an image
+  // without an emoji in its alt is still dropped.
+  await page.getByRole("textbox", { name: "Post" }).evaluate((editor) => {
+    const data = new DataTransfer();
+    data.setData(
+      "text/html",
+      '<p>Shipped <img alt="🚀" src="data:,"> <img alt="👍🏽" src="data:,"><img alt="logo" src="data:,"></p>',
+    );
+    data.setData("text/plain", "Shipped 🚀 👍🏽");
+    // Firefox ignores `clipboardData` in the constructor, so set it on the event.
+    const paste = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", { value: data });
+    editor.dispatchEvent(paste);
+  });
+  await expect(post).toHaveText("Shipped 🚀 👍🏽");
+});

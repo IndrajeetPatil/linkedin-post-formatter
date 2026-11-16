@@ -11,7 +11,7 @@ reader's device.
 
 **Use it at <https://www.indrapatil.com/linkedin-post-formatter/>.**
 
-![Writing a post with a heading, bold, italics, inline code, and a list, then copying the LinkedIn text](docs/images/demo.gif)
+![Writing a post with headings, bold, italics, inline code, lists, a code block, and pasted emoji, then switching options and the dark theme and copying the LinkedIn text](docs/images/demo.gif)
 
 ## How it works
 
