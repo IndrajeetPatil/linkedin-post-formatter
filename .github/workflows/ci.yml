@@ -60,16 +60,41 @@ jobs:
           cache-toolchain: false
           run-install: false
 
+      - name: Install dependencies
+        run: vp install --frozen-lockfile
+
+      - name: Read tool versions
+        id: versions
+        run: |
+          echo "pyodide=$(node -p 'require("pyodide/package.json").version')" >> "$GITHUB_OUTPUT"
+          echo "playwright=$(node -p 'require("@playwright/test/package.json").version')" >> "$GITHUB_OUTPUT"
+
+      # The wheels depend only on the Pyodide release, the requirements, and
+      # the build script, so a rebuild is needed only when one of them changes.
+      - name: Restore Pyodide wheels
+        id: wheels-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: src/wheels
+          key: wheels-${{ runner.os }}-pyodide-${{ steps.versions.outputs.pyodide }}-${{ hashFiles('wheels/requirements.txt', 'scripts/build-wheels.sh') }}
+
       - name: Install uv
+        if: ${{ steps.wheels-cache.outputs.cache-hit != 'true' }}
         uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           enable-cache: false
 
-      - name: Install dependencies
-        run: vp install --frozen-lockfile
-
       - name: Build Pyodide wheels
+        if: ${{ steps.wheels-cache.outputs.cache-hit != 'true' }}
         run: vp run wheels
+
+      # Only the browser downloads are cached; `--with-deps` still installs
+      # the system libraries, and skips browsers that are already present.
+      - name: Restore Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.versions.outputs.playwright }}
 
       - name: Install browsers
         run: vp exec playwright install --with-deps chromium firefox webkit
