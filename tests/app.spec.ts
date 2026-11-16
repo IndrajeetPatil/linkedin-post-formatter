@@ -247,6 +247,18 @@ test("fits a laptop window, scrolling a long post inside its panel", async ({ pa
   await expect(page.getByRole("button", { name: "Copy text" })).toBeInViewport();
 });
 
+test("starts the editor and the post on the same line", async ({ page }) => {
+  test.skip(test.info().project.name.match(/iphone|android/) !== null, "Phones stack the panels.");
+  for (const width of [900, 1280]) {
+    await page.setViewportSize({ width, height: 720 });
+    await page.goto("./");
+    await expect(page.locator("#post")).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+    const editor = await page.getByRole("textbox", { name: "Post" }).boundingBox();
+    const post = await page.locator("#post").boundingBox();
+    expect(post?.y).toBe(editor?.y);
+  }
+});
+
 test("styles overlapping bold and italic, and keeps them on reload", async ({ page }) => {
   await page.goto("./");
   const post = page.locator("#post");

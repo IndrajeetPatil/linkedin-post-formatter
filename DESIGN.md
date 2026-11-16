@@ -111,6 +111,11 @@ sentence of explanation, and links to the privacy notice and the source.
   when nothing is selected, into plain paragraphs; the trash icon clears the
   post. Both dim to 40% and do nothing while the post is empty.
 
+- **Options bar:** the post's options and copy button head its panel, as
+  the toolbar heads the editor's. Side by side, the panes share rows through
+  subgrid, so the two bars take one height and the editor and the post start
+  on the same line.
+
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.
 - **Fit to the window:** with two panels side by side and at least 36rem of
