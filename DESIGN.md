@@ -111,6 +111,9 @@ sentence of explanation, and a colophon.
 
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.
+- **Page edges:** the page never scrolls sideways, down to a 320px phone, and
+  `overscroll-behavior: none` on `html` and `body` stops rubber-band bouncing
+  from exposing empty canvas past the top and bottom edges.
 
 - **Post headings:** the post's heading levels 1 to 3 are drawn as `h3` to
   `h5` under the "Write" heading, so the page keeps a single `h1`: Fraunces
