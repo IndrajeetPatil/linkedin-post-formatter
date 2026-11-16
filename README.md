@@ -45,6 +45,7 @@ vp install        # JavaScript dependencies
 vp run wheels     # Cross-compile the Python wheels into src/wheels/ (a few minutes)
 vp dev            # Development server
 vp check          # Format, lint, and type-check
+prek install      # Git hooks from prek.toml (run all: prek run --all-files)
 vp run e2e        # End-to-end tests in Chromium, Firefox, and WebKit
 ```
 

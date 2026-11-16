@@ -53,7 +53,7 @@ jobs:
               src/*) app=true ;;
               docs/* | hextools/* | .agents/* | .claude/* | .github/prompts/* | \
                 .github/dependabot.yml | .github/workflows/actions.lock | \
-                LICENSE.md | skills-lock.json | scripts/actions-lock.sh | \
+                LICENSE.md | prek.toml | skills-lock.json | scripts/actions-lock.sh | \
                 scripts/record-demo.mjs) ;;
               */*) app=true ;;
               *.md) ;;
@@ -81,6 +81,18 @@ jobs:
           cache-toolchain: false
           run-install: |
             args: [--frozen-lockfile]
+
+      # A hook that rewrites a file fails the step.
+      - name: prek hooks
+        uses: j178/prek-action@7b101f8338a08d2bd6fdb3625e4e7692428763a3 # v3.1.1
+        with:
+          # Newest prek in this action revision's SHA256 table, so the download
+          # stays checksum-verified and moves with the action pin.
+          prek-version: latest-known
+          extra-args: --all-files --stage pre-commit
+        env:
+          # The next step runs the same `vp check`; don't run it twice.
+          SKIP: vite-plus
 
       - name: Format, lint, and type-check
         run: vp check
