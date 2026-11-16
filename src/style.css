@@ -73,6 +73,13 @@
   box-sizing: border-box;
 }
 
+/* Rubber-band overscroll on phones and trackpads drags the page past its
+   edges and exposes empty canvas; the page stops at its edges instead. */
+html,
+body {
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
   background: var(--color-bg);
