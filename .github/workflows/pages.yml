@@ -52,15 +52,13 @@ jobs:
           node-version-file: ".node-version"
           cache: false
           cache-toolchain: false
-          run-install: false
+          run-install: |
+            args: [--frozen-lockfile]
 
       - name: Install uv
         uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
           enable-cache: false
-
-      - name: Install dependencies
-        run: vp install --frozen-lockfile
 
       - name: Build Pyodide wheels
         run: vp run wheels
