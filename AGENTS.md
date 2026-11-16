@@ -74,6 +74,10 @@ rewrite `main`, tags, or merged history.
 - Never give a secret to a job that installs or runs project dependencies.
   Pin third-party actions by full commit SHA with a version comment.
 
+- Keep `.github/workflows/actions.lock` in sync with the workflows: after any
+  `uses:` change, run `vp run actions-lock` (needs the `gh-actions-lock`
+  version pinned in `scripts/actions-lock.sh`). Never edit it by hand.
+
 - Use British English in user-facing text, and the serial (Oxford) comma in
   every list of three or more items in docs, comments, commit messages, PR
   text, and user-facing copy.

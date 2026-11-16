@@ -13,8 +13,10 @@ on:
       - ".claude/**"
       - ".github/prompts/**"
       - ".github/dependabot.yml"
+      - ".github/workflows/actions.lock"
       - "*.md"
       - "skills-lock.json"
+      - "scripts/actions-lock.sh"
       - "scripts/record-demo.mjs"
   workflow_dispatch:
 
