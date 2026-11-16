@@ -217,7 +217,9 @@ svg {
 
 @media (width >= 56rem) {
   .workspace {
+    grid-template-rows: auto auto 1fr auto;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    row-gap: 0;
   }
 }
 
@@ -269,6 +271,25 @@ svg {
   background: var(--color-surface);
 }
 
+/* Side by side, each pane and its panel share the workspace's rows through
+   subgrid: heading, bar, text, and banner. The formatting toolbar and the
+   options bar take the taller of the two heights, so the editor and the post
+   start on the same line. */
+@media (width >= 56rem) {
+  .pane {
+    display: grid;
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+  }
+
+  .panel {
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    row-gap: 0;
+  }
+}
+
 .folio-mark {
   color: var(--color-text-muted);
   font-size: 0.8125rem;
@@ -292,9 +313,11 @@ svg {
   gap: 0.125rem;
 }
 
+/* A fixed height keeps the divider short when the toolbar shares a taller
+   row with a wrapped options bar. */
 .toolbar [role="separator"] {
-  align-self: stretch;
-  margin: 0.375rem 0.25rem;
+  block-size: 1.5rem;
+  margin-inline: 0.25rem;
   border-left: 1px solid var(--color-border);
 }
 
@@ -515,13 +538,14 @@ svg {
   content: "Your formatted post appears here.";
 }
 
+/* The options bar heads the post as the toolbar heads the editor. */
 .post-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem 1.25rem;
-  padding: 0.75rem 1rem 0.75rem 1.25rem;
-  border-top: 1px solid var(--color-border);
+  gap: 0.25rem 1.25rem;
+  padding: 0.375rem 0.375rem 0.375rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .options {
@@ -687,7 +711,7 @@ svg {
 
   .workspace {
     flex: 1;
-    grid-template-rows: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
     min-height: 0;
   }
 
