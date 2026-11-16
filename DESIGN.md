@@ -112,7 +112,9 @@ sentence of explanation, and links to the privacy notice and the source.
   post. Both dim to 40% and do nothing while the post is empty.
 
 - **Options bar:** the post's options and copy button head its panel, as
-  the toolbar heads the editor's. Side by side, the panes share rows through
+  the toolbar heads the editor's. The copy button is a 44px square icon whose
+  accessible name is "Copy text"; the bubble beside it confirms the copy in
+  words. Side by side, the panes share rows through
   subgrid, so the two bars take one height and the editor and the post start
   on the same line.
 

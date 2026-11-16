@@ -611,11 +611,17 @@ svg {
   cursor: not-allowed;
 }
 
-/* The copy button swaps its icon for a check once the text is on the
-   clipboard; the bubble beside it says so in words. */
+/* The copy button is a square icon, named "Copy text" for assistive
+   technology; it swaps its icon for a check once the text is on the
+   clipboard, and the bubble beside it says so in words. */
 .copy {
   position: relative;
   margin-left: auto;
+}
+
+#copy {
+  width: 2.75rem;
+  padding: 0;
 }
 
 #copy [data-lucide="check"],
