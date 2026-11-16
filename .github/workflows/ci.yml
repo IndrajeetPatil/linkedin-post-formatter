@@ -18,6 +18,50 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Decides whether the change can affect the app. Jobs are skipped with `if`
+  # rather than the workflow being filtered by `paths`, because a skipped job
+  # still satisfies a required status check and a filtered workflow does not.
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Anything not listed as inert counts as an app change, so a new kind of
+      # file runs the full suite until it is added here. Markdown only counts
+      # as inert outside `src/`, where `sample.md` is bundled into the app.
+      - name: Filter changed files
+        id: filter
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [[ "$EVENT" != "pull_request" ]]; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          app=false
+          while IFS= read -r file; do
+            case "$file" in
+              src/*) app=true ;;
+              docs/* | hextools/* | .agents/* | .claude/* | .github/prompts/* | \
+                .github/dependabot.yml | LICENSE.md | skills-lock.json | \
+                scripts/record-demo.mjs) ;;
+              */*) app=true ;;
+              *.md) ;;
+              *) app=true ;;
+            esac
+          done < <(git diff --name-only "$BASE" HEAD)
+          echo "app=$app" >> "$GITHUB_OUTPUT"
+          echo "Changes affect the app: $app"
+
   check:
     name: Check
     runs-on: ubuntu-latest
@@ -42,8 +86,12 @@ jobs:
       - name: Format, lint, and type-check
         run: vp check
 
+  # Only the browser suite is skipped for inert changes; `check` still runs
+  # because `vp check` formats Markdown too.
   e2e:
     name: E2E
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
