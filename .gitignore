@@ -33,3 +33,7 @@ src/wheels/
 # Playwright
 test-results/
 playwright-report/
+
+# Vitest
+coverage/
+.vitest/

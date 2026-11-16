@@ -1,0 +1,30 @@
+# lychee link checker configuration
+# Run: lychee .
+
+root_dir = "public"
+
+# Exclude paths that aren't source content
+exclude_path = ["node_modules", "dist", ".git", "coverage", "src/wheels", ".agents"]
+
+# Exclude URLs that are expected to fail or rate-limit
+exclude = [
+  # Localhost dev server
+  "http://localhost.*",
+  # LinkedIn returns 999 for automated requests
+  "https://www\\.linkedin\\.com/.*",
+]
+
+# Accept these status codes as valid
+accept = [200, 204, 301, 302, 403]
+
+# If a source link still uses http:// where https:// is available, fail.
+require_https = true
+
+# Timeout per request (seconds)
+timeout = 30
+
+# Max concurrent requests
+max_concurrency = 5
+
+# Don't check mail addresses
+include_mail = false

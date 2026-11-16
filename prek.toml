@@ -1,10 +1,15 @@
 minimum_prek_version = "0.5.11"
-default_install_hook_types = ["pre-commit", "commit-msg"]
+default_install_hook_types = ["pre-commit", "pre-push", "commit-msg"]
 default_stages = ["pre-commit"]
 
 [update]
 freeze = true
 cooldown_days = 0
+
+[[repos]]
+repo = "https://github.com/rvben/rumdl-pre-commit"
+rev = "df5a947a3af0dba56640e644c6b9316184749168" # frozen: v0.3.4
+hooks = [{ id = "rumdl-check" }]
 
 [[repos]]
 repo = "https://github.com/compilerla/conventional-pre-commit"
@@ -23,9 +28,52 @@ repo = "local"
 id = "vite-plus"
 name = "Vite+ format, lint, and types"
 language = "system"
-entry = "vp check"
+entry = "vp check --deny-warnings"
 files = "\\.([cm]?[jt]sx?|json|css|html|md|ya?ml|toml)$"
 pass_filenames = false
+
+# Staged-diff secret scan with gitleaks; CI scans full history.
+[[repos.hooks]]
+id = "gitleaks"
+name = "gitleaks (staged secret scan)"
+language = "system"
+entry = "gitleaks git --pre-commit --redact --staged --verbose"
+pass_filenames = false
+
+# Spelling with typos over the whole tree.
+[[repos.hooks]]
+id = "typos"
+name = "typos (spelling)"
+language = "system"
+entry = "typos"
+pass_filenames = false
+types = ["text"]
+
+# Submodules are not allowed.
+[[repos.hooks]]
+id = "forbid-submodules"
+name = "forbid submodules"
+language = "fail"
+entry = "submodules are not allowed in this repository:"
+types = ["directory"]
+
+[[repos.hooks]]
+id = "typecheck"
+name = "TypeScript type check"
+language = "system"
+entry = "vp run typecheck"
+pass_filenames = false
+always_run = true
+stages = ["pre-push"]
+
+[[repos.hooks]]
+id = "test"
+name = "Unit tests with coverage (Vitest)"
+language = "system"
+entry = "vp run test"
+pass_filenames = false
+always_run = true
+stages = ["pre-push"]
 
 [[repos]]
 repo = "builtin"

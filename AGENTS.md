@@ -23,7 +23,7 @@
    never a draft.
 
 2. Install the Git hooks once with `prek install`. Before each commit, run
-   `prek run --all-files`, `vp check`, and `vp run e2e`. Never bypass hooks
+   `prek run --all-files`, `vp run qa`, and `vp run e2e`. Never bypass hooks
    with `--no-verify` or `SKIP`.
 
 3. Use Conventional Commits for every commit and PR title, including merge,

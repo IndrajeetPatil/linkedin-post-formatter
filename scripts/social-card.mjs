@@ -8,6 +8,7 @@ import { createRequire } from "node:module";
 import { chromium } from "@playwright/test";
 
 const require = createRequire(import.meta.url);
+/** @param {string} file */
 const font = (file) =>
   `url(data:font/woff2;base64,${readFileSync(require.resolve(`@fontsource-variable/${file}`)).toString("base64")}) format("woff2")`;
 

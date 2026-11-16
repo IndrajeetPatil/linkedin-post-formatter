@@ -5,7 +5,13 @@
     "lib": ["ES2024", "DOM"],
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedSideEffectImports": true,
+    "checkJs": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -20,5 +26,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "tests", "scripts", "*.ts"]
 }
