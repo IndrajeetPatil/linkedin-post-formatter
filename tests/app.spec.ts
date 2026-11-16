@@ -78,6 +78,20 @@ test("fits the narrowest phones without sideways scrolling", async ({ page }) =>
   expect(overflow).toBe(0);
 });
 
+test("stops at the page edges instead of bouncing past them", async ({ page }) => {
+  await page.goto("./");
+  const overscroll = await page.evaluate(() =>
+    [document.documentElement, document.body].map((element) => {
+      const style = getComputedStyle(element);
+      return [style.overscrollBehaviorX, style.overscrollBehaviorY];
+    }),
+  );
+  expect(overscroll).toEqual([
+    ["none", "none"],
+    ["none", "none"],
+  ]);
+});
+
 test("keeps working when storage is blocked", async ({ page }) => {
   await page.addInitScript(() => {
     const blocked = () => {

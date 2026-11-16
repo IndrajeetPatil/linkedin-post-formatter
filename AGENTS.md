@@ -52,3 +52,28 @@
 Open, unmerged PR history may be tidied with
 `--force-with-lease=<branch>:<expected-sha>`. Never use bare `--force` or
 rewrite `main`, tags, or merged history.
+
+## Prompts and skills
+
+- Reusable task prompts live in `.github/prompts/`: `address-review`,
+  `codex-security`, `simplify-codebase`, and `update-deps`.
+
+- `.agents/skills/agent-browser/` is vendored upstream and recorded in
+  `skills-lock.json`; update it with the Skills CLI as `update-deps`
+  describes, never by hand.
+
+## Gotchas
+
+- Fix failures rather than weakening checks: keep Oxlint's type-aware rules
+  and the end-to-end browser projects as they are.
+
+- Never put information in a native `title` attribute: its tooltip is
+  hover-only, so keyboard and touch users never see it. Show it visibly or
+  give the control an accessible name.
+
+- Never give a secret to a job that installs or runs project dependencies.
+  Pin third-party actions by full commit SHA with a version comment.
+
+- Use British English in user-facing text, and the serial (Oxford) comma in
+  every list of three or more items in docs, comments, commit messages, PR
+  text, and user-facing copy.
