@@ -44,8 +44,9 @@ vp run e2e        # End-to-end tests in Chromium, Firefox, and WebKit
 
 The versions of the Python packages live in `wheels/requirements.txt`.
 
-`scripts/record-demo.mjs` re-records the demo above (it needs `ffmpeg`), and
-`hextools/` regenerates the hex sticker.
+`scripts/record-demo.mjs` re-records the demo above (it needs `ffmpeg`),
+`vp run social-card` re-renders the link-preview image
+(`public/social-card.png`), and `hextools/` regenerates the hex sticker.
 
 ## Deployment
 

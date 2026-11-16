@@ -169,3 +169,35 @@ test("clears the post, and the empty draft persists", async ({ page }) => {
   await expect(page.locator("#count")).toHaveText("0 / 3,000", { timeout: 60_000 });
   await expect(post).toHaveText("");
 });
+
+test("nests the post's headings under the page's own", async ({ page }) => {
+  await page.goto("./");
+  // The sample post's level-1 heading sits below "Write", which leaves the
+  // page one h1, and still converts as a level-1 heading.
+  await expect(
+    page.getByRole("heading", { name: "Three lessons from a weekend project", level: 3 }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page.locator("#post")).toContainText("𝗧𝗛𝗥𝗘𝗘 𝗟𝗘𝗦𝗦𝗢𝗡𝗦", { timeout: 60_000 });
+});
+
+test("describes itself to search engines and link previews", async ({ page, request }) => {
+  await page.goto("./");
+  const site = "https://www.indrapatil.com/linkedin-post-formatter/";
+  await expect(page).toHaveTitle("LinkedIn Post Formatter and Text Editor");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", site);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+    "content",
+    `${site}social-card.png`,
+  );
+  const data = JSON.parse(
+    (await page.locator('script[type="application/ld+json"]').textContent()) ?? "",
+  ) as unknown;
+  expect(data).toMatchObject({ "@type": "WebApplication", url: site });
+
+  // The card and the sitemap ship with the build.
+  const card = await request.get("social-card.png");
+  expect(card.ok()).toBe(true);
+  expect(card.headers()["content-type"]).toBe("image/png");
+  expect((await request.get("sitemap.xml")).ok()).toBe(true);
+});
