@@ -16,6 +16,8 @@ extend-exclude = [
 [default.extend-identifiers]
 # Standard JavaScript String method; the API name cannot use British spelling.
 normalize = "normalize"
+# Tiptap's MarkdownManager method.
+serialize = "serialize"
 
 [default.extend-words]
 # CSS properties and values — American English is mandated by the CSS specification

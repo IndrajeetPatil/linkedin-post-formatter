@@ -3,6 +3,8 @@
 A static web page for formatting LinkedIn posts. Write with bold, italics,
 headings, lists, and code in a rich-text editor, and copy a version that spells
 that formatting in Unicode characters, which LinkedIn keeps when you paste.
+Screen readers may misread or skip those characters, so turning off "Styled
+letters" copies the post's paragraphs and lists without them.
 
 The conversion is the [md2linkedin](https://github.com/IndrajeetPatil/md2linkedin)
 Python package itself, running in the browser on

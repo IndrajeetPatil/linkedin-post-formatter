@@ -114,9 +114,17 @@ sentence of explanation, and links to the privacy notice and the source.
 - **Options bar:** the post's options and copy button head its panel, as
   the toolbar heads the editor's. The copy button is a 44px square icon whose
   accessible name is "Copy text"; the bubble beside it confirms the copy in
-  words. Side by side, the panes share rows through
+  words. "Styled letters", on by default, comes first: turned off, the post
+  keeps its paragraphs and lists without Unicode styles, and "Monospace code"
+  is disabled and muted. On narrow screens the options wrap among
+  themselves, so the copy button stays at the end of the bar. Side by side, the panes share rows through
   subgrid, so the two bars take one height and the editor and the post start
   on the same line.
+
+- **Styles note:** a muted 13px line under the post panel says that screen
+  readers may misread styled letters. It describes the "Styled letters"
+  checkbox, stays visible so nobody has to hover to read it, and shares the
+  pane's last row with the error banner.
 
 - **Character count:** a `.folio-mark` beside the preview heading; past
   LinkedIn's 3,000-character limit it turns rust and says so in words.

@@ -242,6 +242,15 @@
         <div class="panel">
           <div class="post-actions">
             <div class="options">
+              <label
+                ><input
+                  type="checkbox"
+                  id="styled-letters"
+                  aria-describedby="styles-note"
+                  checked
+                />
+                Styled letters</label
+              >
               <label><input type="checkbox" id="monospace-code" checked /> Monospace code</label>
               <label><input type="checkbox" id="preserve-links" /> Keep links</label>
             </div>
@@ -263,7 +272,13 @@
             <p class="loading">Loading the formatter…</p>
           </div>
         </div>
-        <p id="error" class="banner" role="alert" hidden></p>
+        <div class="pane-foot">
+          <p id="styles-note" class="note">
+            Styled letters are Unicode lookalikes: screen readers may misread or skip them, and
+            search may miss them. Without them, the post keeps its paragraphs and lists.
+          </p>
+          <p id="error" class="banner" role="alert" hidden></p>
+        </div>
       </section>
     </main>
 

@@ -286,6 +286,37 @@ test("styles overlapping bold and italic, and keeps them on reload", async ({ pa
   await expect(post).toHaveText(styled, { timeout: 60_000 });
 });
 
+test("drops the styled letters, keeping the post's structure", async ({ page }) => {
+  await page.goto("./");
+  const post = page.locator("#post");
+  await expect(post).toContainText("𝗧𝗛𝗥𝗘𝗘", { timeout: 60_000 });
+  await page.getByRole("button", { name: "Clear post" }).click();
+  await expect(post).toHaveText("");
+
+  await page.getByRole("textbox", { name: "Post" }).evaluate((editor) => {
+    const data = new DataTransfer();
+    data.setData(
+      "text/html",
+      "<h1>Title</h1><ul><li><p><strong>bold</strong> <em>italic</em> <code>x</code></p></li></ul>",
+    );
+    data.setData("text/plain", "Title bold italic x");
+    const paste = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", { value: data });
+    editor.dispatchEvent(paste);
+  });
+  await expect(post).toContainText("• 𝗯𝗼𝗹𝗱 𝘪𝘵𝘢𝘭𝘪𝘤 𝚡");
+
+  const styled = page.getByRole("checkbox", { name: "Styled letters" });
+  await expect(styled).toHaveAccessibleDescription(/screen readers may misread/);
+  await styled.uncheck();
+  await expect(page.getByLabel("Monospace code")).toBeDisabled();
+  await expect(post).toHaveText("Title\n\n• bold italic x");
+
+  // The choice survives a reload.
+  await page.reload();
+  await expect(post).toHaveText("Title\n\n• bold italic x", { timeout: 60_000 });
+});
+
 test("clears formatting from the selection, or else the whole post", async ({ page }) => {
   await page.goto("./");
   const post = page.locator("#post");

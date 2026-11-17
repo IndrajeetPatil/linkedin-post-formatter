@@ -37,6 +37,7 @@ const count = $("#count");
 const copyButton = $<HTMLButtonElement>("#copy");
 const copyStatus = $(".copy .tip");
 const errorBanner = $("#error");
+const styledLetters = $<HTMLInputElement>("#styled-letters");
 const monospaceCode = $<HTMLInputElement>("#monospace-code");
 const preserveLinks = $<HTMLInputElement>("#preserve-links");
 
@@ -322,6 +323,22 @@ if (!("focusGroup" in HTMLElement.prototype)) {
 
 // ── Conversion ──────────────────────────────────────────────────────────────
 
+// Without styled letters, the post keeps its structure but none of the
+// Unicode styles that screen readers misread: bold and italic come off,
+// headings become paragraphs, and code is left plain by the converter.
+function unstyled(node: JSONContent): JSONContent {
+  const { type, attrs, marks, content, ...rest } = node;
+  const heading = type === "heading";
+  const kept = marks?.filter((mark) => mark.type !== "bold" && mark.type !== "italic");
+  return {
+    ...rest,
+    ...(type === undefined ? {} : { type: heading ? "paragraph" : type }),
+    ...(heading || attrs === undefined ? {} : { attrs }),
+    ...(kept?.length ? { marks: kept } : {}),
+    ...(content === undefined ? {} : { content: content.map(unstyled) }),
+  };
+}
+
 const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
 let latest = 0;
 // The settled text of the latest request, or null while it is converting.
@@ -340,9 +357,11 @@ function convert() {
   result = next;
   const request: ConvertRequest = {
     id: ++latest,
-    markdown: editor.getMarkdown(),
+    markdown: styledLetters.checked
+      ? editor.getMarkdown()
+      : editor.markdown!.serialize(unstyled(editor.getJSON())),
     preserveLinks: preserveLinks.checked,
-    monospaceCode: monospaceCode.checked,
+    monospaceCode: styledLetters.checked && monospaceCode.checked,
   };
   worker.postMessage(request);
 }
@@ -374,15 +393,19 @@ editor.on("update", () => {
   save(DRAFT_KEY, JSON.stringify(editor.getJSON()));
   convert();
 });
-for (const option of [monospaceCode, preserveLinks]) {
+// Monospace is a styled letter too, so it only applies alongside the others.
+const syncOptions = () => (monospaceCode.disabled = !styledLetters.checked);
+for (const option of [styledLetters, monospaceCode, preserveLinks]) {
   const key = `linkedin-post-formatter:${option.id}`;
   const saved = load(key);
   if (saved) option.checked = saved === "true";
   option.addEventListener("change", () => {
     save(key, String(option.checked));
+    syncOptions();
     convert();
   });
 }
+syncOptions();
 syncToolbar();
 convert();
 
