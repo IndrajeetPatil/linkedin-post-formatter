@@ -20,8 +20,10 @@ Keep the version pins consistent:
 - **Node.js:** update `.node-version`, and keep `engines.node` in
   `package.json` compatible with it.
 
-- **Vite+:** update both `vite` and `vite-plus` in the `catalog` of
-  `pnpm-workspace.yaml` to the same release.
+- **Vite+:** update `vite-plus` in the `catalog` of `pnpm-workspace.yaml`,
+  and point the `vite` alias at the `@voidzero-dev/vite-plus-core` version
+  that release depends on (`npm view vite-plus@<version> dependencies.vite`);
+  the two packages are versioned independently.
 
 - **prek:** run `prek update` to refresh the frozen hook SHAs in
   `prek.toml`, and keep `minimum_prek_version` no newer than the
