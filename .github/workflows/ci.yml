@@ -246,6 +246,15 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.versions.outputs.playwright }}
 
+      # Playwright's WebKit binary requires Ubuntu 24.04 (noble) libraries
+      # (libicu74 and libxml2.so.2) that Ubuntu 26.04 (ubuntu-latest) replaced
+      # with libicu78 and libxml2-16.
+      - name: Install WebKit system dependencies
+        run: |
+          echo "deb [signed-by=/usr/share/keyrings/ubuntu-archive-keyring.gpg] http://archive.ubuntu.com/ubuntu noble main noble-updates" | sudo tee /etc/apt/sources.list.d/noble.list
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libicu74 libxml2
+
       - name: Install browsers
         run: vp exec playwright install --with-deps chromium firefox webkit
 
