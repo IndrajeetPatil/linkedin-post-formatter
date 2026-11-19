@@ -26,7 +26,7 @@
     "@tiptap/markdown": "^3.34.0",
     "@tiptap/pm": "^3.34.0",
     "@tiptap/starter-kit": "^3.34.0",
-    "lucide": "^1.73.0",
+    "lucide": "^1.75.0",
     "pyodide": "314.0.8"
   },
   "devDependencies": {

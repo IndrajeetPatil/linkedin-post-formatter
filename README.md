@@ -6,7 +6,7 @@ that formatting in Unicode characters, which LinkedIn keeps when you paste.
 
 The conversion is the [md2linkedin](https://github.com/IndrajeetPatil/md2linkedin)
 Python package itself, running in the browser on
-[Pyodide](https://pyodide.org/). There is no server: the text never leaves the
+[Pyodide](https://pyodide.org/en/stable/). There is no server: the text never leaves the
 reader's device.
 
 **Use it at <https://www.indrapatil.com/linkedin-post-formatter/>.**
