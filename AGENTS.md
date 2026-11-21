@@ -44,7 +44,9 @@
    unresolved threads; silence before any approval does not count. If Codex
    reports exhausted usage, keep fixing CI, leave the PR open, and report the
    limit. Once usage refreshes, comment `@codex review` once; only this case
-   needs the comment.
+   needs the comment. Never write `@codex` anywhere else in a PR title,
+   body, or comment, not even inside backticks: Codex treats any mention as a
+   task request and skips its automatic review.
 
 6. Once CI is green and Codex has approved, recheck the
    head, checks, and threads, then squash-merge with the owner's GitHub
