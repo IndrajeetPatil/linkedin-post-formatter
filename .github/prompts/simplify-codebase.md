@@ -116,12 +116,13 @@ Follow the pull request workflow in `AGENTS.md` after creation:
   changes, including nonvisual refactors; tooling-only edits are exempt.
 
 - Wait for hosted CI, fix failures, and iterate until all required checks
-  pass. Request Codex review, address findings, and repeat until Codex gives a
-  current-head thumbs-up with no unresolved findings.
+  pass. Codex reviews the PR automatically, so do not comment
+  `@codex review`; address its findings until Codex gives a thumbs-up with
+  no unresolved findings.
 
-- If Codex review usage is exhausted, stop requesting reviews, report the
-  limit, and leave the PR open; do not merge without approval or use a
-  substitute.
+- If Codex review usage is exhausted, report the limit and leave the PR open;
+  do not merge without approval or use a substitute. Once usage refreshes,
+  comment `@codex review` once.
 
 - With green CI and current-head Codex approval, recheck the merge gates and
   squash-merge using the owner's authenticated `gh` credentials without
