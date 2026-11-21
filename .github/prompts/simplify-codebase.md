@@ -99,6 +99,14 @@ follow:
    first) until the refactoring is demonstrated to be regression-free in every
    browser the end-to-end tests cover.
 
+## Learn from mistakes
+
+When a check fails, a reviewer raises a finding, or you notice a mistake in
+your own work, fix it, then ask what led you to it. If a skill, its scripts or
+templates, a prompt, or `AGENTS.md` gave missing, ambiguous, or wrong
+guidance, correct that guidance in the same pull request, stating the general
+rule rather than the incident. Never weaken a quality gate instead.
+
 ## Pull request
 
 At the end, create a published, ready-for-review PR with the `gh` CLI
