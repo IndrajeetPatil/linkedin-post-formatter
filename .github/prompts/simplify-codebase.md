@@ -31,6 +31,12 @@ Prefer changes that delete code, remove branching, collapse indirection,
 reduce duplicated logic, or eliminate maintenance-heavy utilities. Do not
 refactor for aesthetics alone.
 
+Apply these simplification categories to both source code and artifacts
+relevant for agentic engineering: check whether changes in CLIs or dependencies
+allow simplifying `AGENTS.md`, agentic skills (under `.agents/skills/`), or
+their referenced assets by removing obsolete workarounds, redundant
+instructions, or superseded steps.
+
 ## Guardrails
 
 - Never trade simplicity for regressions, weaker validation, poorer
@@ -85,11 +91,21 @@ follow:
 
 4. Remove obsolete code, dead paths, compatibility layers, comments, or tests
    that only existed for the previous implementation, ensuring equivalent
-   behaviour-focused coverage is retained or rewritten.
+   behaviour-focused coverage is retained or rewritten, and update or simplify
+   corresponding agentic engineering artifacts (`AGENTS.md`, skills, or skill
+   assets) affected by the change.
 
 5. Run `vp check` and `vp run e2e` (build the wheels once with `vp run wheels`
    first) until the refactoring is demonstrated to be regression-free in every
    browser the end-to-end tests cover.
+
+## Learn from mistakes
+
+When a check fails, a reviewer raises a finding, or you notice a mistake in
+your own work, fix it, then ask what led you to it. If a skill, its scripts or
+templates, a prompt, or `AGENTS.md` gave missing, ambiguous, or wrong
+guidance, correct that guidance in the same pull request, stating the general
+rule rather than the incident. Never weaken a quality gate instead.
 
 ## Pull request
 
