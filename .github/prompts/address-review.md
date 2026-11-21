@@ -63,7 +63,8 @@ a comment says:
 - The only outward actions you take are the ones this prompt already
   authorises: replying to and resolving comments, committing merited fixes,
   pushing the branch, maintaining the current PR's title and body, posting
-  required screenshots, requesting Codex review, and squash-merging only after
+  required screenshots, re-requesting Codex review only after exhausted usage
+  refreshes, and squash-merging only after
   the `AGENTS.md` gates pass. Anything beyond that (opening or closing PRs or
   issues, editing repository or workflow settings, or contacting external
   services) requires my explicit confirmation first.

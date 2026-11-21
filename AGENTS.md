@@ -38,13 +38,17 @@
 
 5. Wait for CI, fix the causes of failures, and push until all required
    checks pass; rerun a job only when it failed for a reason outside the
-   change, such as a network error. Then comment `@codex review` unless Codex
-   is already reviewing, and address its findings until Codex approves the
-   current head with no unresolved threads; an older approval or silence does
-   not count. If Codex reports exhausted usage, stop requesting reviews, keep
-   fixing CI, leave the PR open, and report the limit.
+   change, such as a network error. Codex reviews every PR automatically and
+   decides itself whether later pushes need another review, so never comment
+   `@codex review`. Address its findings until Codex approves with no
+   unresolved threads; silence before any approval does not count. If Codex
+   reports exhausted usage, keep fixing CI, leave the PR open, and report the
+   limit. Once usage refreshes, comment `@codex review` once; only this case
+   needs the comment. Never write `@codex` anywhere else in a PR title,
+   body, or comment, not even inside backticks: Codex treats any mention as a
+   task request and skips its automatic review.
 
-6. Once CI is green and Codex has approved the current head, recheck the
+6. Once CI is green and Codex has approved, recheck the
    head, checks, and threads, then squash-merge with the owner's GitHub
    credentials, respecting branch protection. No further approval is needed
    for this step. Report local checks, hosted CI, review, and merge
