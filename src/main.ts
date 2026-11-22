@@ -390,24 +390,6 @@ convert();
 
 let resetCopy: ReturnType<typeof setTimeout> | undefined;
 
-// The deprecated path, for browsers that refuse the Clipboard API. It only
-// works while the click still counts as the user's gesture.
-function legacyCopy(text: string) {
-  const field = Object.assign(document.createElement("textarea"), { value: text });
-  field.setAttribute("readonly", "");
-  // 16px keeps iOS from zooming in on the field.
-  field.style.cssText = "position:fixed;inset-block-start:0;opacity:0;font-size:16px";
-  document.body.append(field);
-  field.select();
-  // iOS ignores select() on a textarea; it needs an explicit range.
-  field.setSelectionRange(0, text.length);
-  try {
-    return document.execCommand("copy");
-  } finally {
-    field.remove();
-  }
-}
-
 async function writeLatest() {
   // Text that is ready is written straight away, inside the click's gesture,
   // which every browser accepts. A clipboard item backed by a promise is kept
@@ -423,11 +405,7 @@ async function writeLatest() {
     }
   }
   const text = ready ?? (await result.promise);
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch (error) {
-    if (!legacyCopy(text)) throw error;
-  }
+  await navigator.clipboard.writeText(text);
 }
 
 copyButton.addEventListener("click", async () => {
