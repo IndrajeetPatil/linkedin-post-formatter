@@ -17,46 +17,54 @@
 - Only offer editor formatting that md2linkedin can express in Unicode; it
   has no style for strikethrough, underline, quotes, or rules.
 
-## Pull request workflow
+## Pull requests
 
-1. Work on a branch and deliver every change through a ready-for-review PR,
-   never a draft.
+Follow these rules without relying on any instructions outside this
+repository:
 
-2. Install the Git hooks once with `prek install`. Before each commit, run
-   `prek run --all-files`, `vp run qa`, and `vp run e2e`. Never bypass hooks
-   with `--no-verify` or `SKIP`.
+- Write every commit message and PR title as a Conventional Commit,
+  `type(scope): description`, lowercase and imperative, with an allowed type
+  (`build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`,
+  `revert`, `style`, `test`). Keep the PR title and body in sync with the
+  net diff.
 
-3. Use Conventional Commits for every commit and PR title, including merge,
-   revert, and fixup messages. Keep the PR title and body in sync with the
-   net diff.
+- Open every PR ready for review with `gh pr create`, never as a draft.
 
-4. If the PR touches frontend source (`index.html`, `src/`, or `public/`),
-   including behaviour-only changes and refactors with no intended visual
-   difference, follow [`pr-screenshot`](.agents/skills/pr-screenshot/SKILL.md)
-   and post verified screenshots. Changes limited to developer tooling,
-   tests, CI, or docs are exempt.
+- Never add agent or tool attribution to commits, PRs, or comments.
 
-5. Wait for CI, fix the causes of failures, and push until all required
-   checks pass; rerun a job only when it failed for a reason outside the
-   change, such as a network error. Codex reviews every PR automatically and
-   decides itself whether later pushes need another review, so never comment
-   `@codex review`. Address its findings until Codex approves with no
-   unresolved threads; silence before any approval does not count. If Codex
-   reports exhausted usage, keep fixing CI, leave the PR open, and report the
-   limit. Once usage refreshes, comment `@codex review` once; only this case
-   needs the comment. Never write `@codex` anywhere else in a PR title,
-   body, or comment, not even inside backticks: Codex treats any mention as a
-   task request and skips its automatic review.
+- If the PR touches frontend source (`index.html`, `src/`, or `public/`),
+  including behaviour-only changes and refactors with no intended visual
+  difference, follow [`pr-screenshot`](.agents/skills/pr-screenshot/SKILL.md)
+  and post verified screenshots. Changes limited to developer tooling,
+  tests, CI, or docs are exempt.
 
-6. Once CI is green and Codex has approved, recheck the
-   head, checks, and threads, then squash-merge with the owner's GitHub
-   credentials, respecting branch protection. No further approval is needed
-   for this step. Report local checks, hosted CI, review, and merge
-   separately.
+- After opening or pushing, wait for hosted CI to finish. Inspect failed jobs,
+  fix the cause, run the local checks (`vp run qa`, `vp run e2e`, and
+  `prek run --all-files`), push, and repeat. Skipped, queued, or failing
+  required checks are not success.
 
-Open, unmerged PR history may be tidied with
-`--force-with-lease=<branch>:<expected-sha>`. Never use bare `--force` or
-rewrite `main`, tags, or merged history.
+- If an automatic AI review (Codex, for the owner) runs on the PR, wait for
+  its result instead of requesting one. Fix merited findings, reply to and
+  resolve addressed threads, and continue until the review approves the
+  current head with no unresolved findings. Never write `@codex` anywhere in
+  a PR, even in backticks: it cancels the automatic review. Say "a Codex
+  review request" instead.
+
+- If Codex reports exhausted usage, keep fixing CI, leave the PR open, and
+  report the limit. Once usage refreshes, comment `@codex review` once; only
+  this case needs the comment.
+
+- Once CI is green and the review gate is met, squash-merge, then verify the
+  merged state. Recheck the head, threads, and checks immediately before
+  merging, and never bypass branch protections.
+
+- Update a PR branch from `main` only to resolve conflicts or pick up a change
+  the PR depends on, never just to bring it up to date. Open, unmerged PR
+  history may be tidied with `--force-with-lease=<branch>:<expected-sha>`.
+  Never use bare `--force` or rewrite `main`, tags, or merged history.
+
+- Report local validation, hosted CI, review, and merge state separately. If
+  an external blocker stops completion, leave the PR open and say so.
 
 ## Demo and screenshots
 
