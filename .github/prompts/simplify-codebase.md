@@ -53,6 +53,10 @@ instructions, or superseded steps.
 - Reuse repository conventions, existing helpers, and established patterns
   where they still add value.
 
+- Do not force a simplification if none is available: if the codebase is
+  already in an excellent condition with no clear liabilities to remove, report
+  that and stop.
+
 - If a candidate simplification would require speculative design changes,
   broad rewrites, or uncertain behavioural drift, skip it and choose a safer
   target. If no safe candidate exists, report why and stop; do not force a
