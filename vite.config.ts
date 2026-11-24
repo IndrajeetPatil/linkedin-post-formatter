@@ -25,7 +25,9 @@ const LINT_PLUGINS = [
 // Wheels keep their exact file names, which Pyodide parses for the package
 // name and platform; the versions in those names already bust caches.
 const assetFileNames = ({ names }: { names: string[] }) =>
-  names[0]?.endsWith(".whl") ? "wheels/[name][extname]" : "assets/[name]-[hash][extname]";
+  names[0]?.endsWith(".whl")
+    ? "wheels/[name][extname]"
+    : "assets/[name]-[hash][extname]";
 
 export default defineConfig({
   // GitHub Pages serves a project site from /<repository>/.
@@ -82,6 +84,15 @@ export default defineConfig({
     },
   },
   fmt: {
+    // Favour one entry per line with a trailing comma, so additions and
+    // removals touch a single line. Oxfmt has no option that forces every
+    // list to expand; a narrow print width, trailing commas everywhere,
+    // preserved multi-line objects, and one attribute per line push furthest
+    // that way.
+    printWidth: 80,
+    trailingComma: "all",
+    objectWrap: "preserve",
+    singleAttributePerLine: true,
     ignorePatterns: [...GENERATED, "pnpm-lock.yaml", "skills-lock.json"],
   },
   lint: {
@@ -134,7 +145,10 @@ export default defineConfig({
       "capitalized-comments": [
         "error",
         "always",
-        { ignoreConsecutiveComments: true, ignorePattern: "[cv]8|istanbul|iOS" },
+        {
+          ignoreConsecutiveComments: true,
+          ignorePattern: "[cv]8|istanbul|iOS",
+        },
       ],
       "one-var": ["error", "never"],
       "func-style": ["error", "declaration", { allowArrowFunctions: true }],

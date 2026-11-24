@@ -36,11 +36,14 @@
   --color-chip-rust: light-dark(#9a3d2e, #e8a290);
 
   --font-sans:
-    "Hanken Grotesk Variable", "Hanken Grotesk Fallback", system-ui, -apple-system, sans-serif;
-  --font-serif: "Fraunces Variable", "Fraunces Fallback", Georgia, "Times New Roman", serif;
+    "Hanken Grotesk Variable", "Hanken Grotesk Fallback", system-ui,
+    -apple-system, sans-serif;
+  --font-serif:
+    "Fraunces Variable", "Fraunces Fallback", Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   /* LinkedIn sets posts in the system face, so the preview does too. */
-  --font-post: -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-post:
+    -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 
   --text-title: clamp(2rem, 1.5rem + 2.6vw, 3.75rem);
   --radius-sm: 4px;

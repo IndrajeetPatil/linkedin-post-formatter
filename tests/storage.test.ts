@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vite-plus/test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from "vite-plus/test";
 import { load, save } from "../src/storage.ts";
 
 describe("storage", () => {
@@ -7,10 +14,14 @@ describe("storage", () => {
   beforeEach(() => {
     store.clear();
     vi.stubGlobal("localStorage", {
-      getItem: vi.fn<(key: string) => string | null>((key: string) => store.get(key) ?? null),
-      setItem: vi.fn<(key: string, value: string) => void>((key: string, value: string) => {
-        store.set(key, value);
-      }),
+      getItem: vi.fn<(key: string) => string | null>(
+        (key: string) => store.get(key) ?? null,
+      ),
+      setItem: vi.fn<(key: string, value: string) => void>(
+        (key: string, value: string) => {
+          store.set(key, value);
+        },
+      ),
       removeItem: vi.fn<(key: string) => void>((key: string) => {
         store.delete(key);
       }),

@@ -1,11 +1,21 @@
 import "./style.css";
-import { type ChainedCommands, Editor, Extension, type JSONContent } from "@tiptap/core";
+import {
+  type ChainedCommands,
+  Editor,
+  Extension,
+  type JSONContent,
+} from "@tiptap/core";
 import BoldMark from "@tiptap/extension-bold";
 import Heading from "@tiptap/extension-heading";
 import ItalicMark from "@tiptap/extension-italic";
 import { Placeholder } from "@tiptap/extensions";
 import { Markdown } from "@tiptap/markdown";
-import { Fragment, type Node as ProseMirrorNode, type Schema, Slice } from "@tiptap/pm/model";
+import {
+  Fragment,
+  type Node as ProseMirrorNode,
+  type Schema,
+  Slice,
+} from "@tiptap/pm/model";
 import StarterKit from "@tiptap/starter-kit";
 import {
   Bold,
@@ -31,7 +41,8 @@ const DRAFT_KEY = "linkedin-post-formatter:draft";
 // and counting those rather than code points errs on the side of fitting.
 const POST_LIMIT = 3000;
 
-const $ = <T extends HTMLElement>(selector: string) => document.querySelector<T>(selector)!;
+const $ = <T extends HTMLElement>(selector: string) =>
+  document.querySelector<T>(selector)!;
 const post = $("#post");
 const count = $("#count");
 const copyButton = $<HTMLButtonElement>("#copy");
@@ -84,7 +95,9 @@ const HtmlItalic = ItalicMark.extend({
 // paragraphs, as pasted text often brings formatting along.
 const clearFormatting = (chain: ChainedCommands) =>
   chain
-    .command(({ state, commands }) => state.selection.empty && commands.selectAll())
+    .command(
+      ({ state, commands }) => state.selection.empty && commands.selectAll(),
+    )
     .unsetAllMarks()
     .clearNodes();
 
@@ -110,7 +123,10 @@ function unwrapEmojiImages(html: string) {
 
 // The draft is kept as the editor's JSON, which reloads exactly; Markdown
 // would lose spaces at some style boundaries. A Markdown draft still loads.
-function loadDraft(): { content: string | JSONContent; contentType: "json" | "markdown" } {
+function loadDraft(): {
+  content: string | JSONContent;
+  contentType: "json" | "markdown";
+} {
   const draft = load(DRAFT_KEY);
   if (draft === null) return { content: sample, contentType: "markdown" };
   try {
@@ -153,16 +169,24 @@ const DIGITS = ["bold", "", "", "bold", "code"];
 // a character outside the block.
 function mathStyle(codePoint: number): string | null {
   if (codePoint < 0x1d400 || codePoint > 0x1d7ff) return null;
-  if (codePoint < 0x1d6a4) return LETTERS[Math.floor((codePoint - 0x1d400) / 52)] ?? "";
+  if (codePoint < 0x1d6a4)
+    return LETTERS[Math.floor((codePoint - 0x1d400) / 52)] ?? "";
   // Greek letters, which md2linkedin never writes, come before the digits.
   return DIGITS[Math.floor((codePoint - 0x1d7ce) / 10)] ?? "";
 }
 
 const graphemes = new Intl.Segmenter("en", { granularity: "grapheme" });
 
-function unstyleText(node: ProseMirrorNode, parent: ProseMirrorNode, schema: Schema) {
+function unstyleText(
+  node: ProseMirrorNode,
+  parent: ProseMirrorNode,
+  schema: Schema,
+) {
   // Graphemes keep an accent with the styled letter before it.
-  const chars = Array.from(graphemes.segment(node.text!), ({ segment }) => segment);
+  const chars = Array.from(
+    graphemes.segment(node.text!),
+    ({ segment }) => segment,
+  );
   // Each character's styles, or null for one with no styled form, such as a
   // space or punctuation, which joins the styles on both sides when they match.
   const own = chars.map((char) => mathStyle(char.codePointAt(0)!));
@@ -173,7 +197,8 @@ function unstyleText(node: ProseMirrorNode, parent: ProseMirrorNode, schema: Sch
   }
   let before: string | null = null;
   const styles = own.map((style, i) => {
-    if (style === null) return before !== null && before === after[i] ? before : "";
+    if (style === null)
+      return before !== null && before === after[i] ? before : "";
     before = style;
     return style;
   });
@@ -189,7 +214,8 @@ function unstyleText(node: ProseMirrorNode, parent: ProseMirrorNode, schema: Sch
     let marks = node.marks;
     for (const name of styles[start]!.split(" ").filter(Boolean)) {
       const type = schema.marks[name]!;
-      if (parent.type.allowsMarkType(type)) marks = type.create().addToSet(marks);
+      if (parent.type.allowsMarkType(type))
+        marks = type.create().addToSet(marks);
     }
     nodes.push(schema.text(text, marks));
     start = i;
@@ -197,7 +223,11 @@ function unstyleText(node: ProseMirrorNode, parent: ProseMirrorNode, schema: Sch
   return nodes;
 }
 
-function unstyleFragment(fragment: Fragment, parent: ProseMirrorNode, schema: Schema): Fragment {
+function unstyleFragment(
+  fragment: Fragment,
+  parent: ProseMirrorNode,
+  schema: Schema,
+): Fragment {
   const nodes: ProseMirrorNode[] = [];
   fragment.forEach((node) => {
     if (node.isText && MATH.test(node.text!)) {
@@ -209,9 +239,16 @@ function unstyleFragment(fragment: Fragment, parent: ProseMirrorNode, schema: Sc
   return Fragment.from(nodes);
 }
 
-function unstylePasted(slice: Slice, view: { state: { schema: Schema; doc: ProseMirrorNode } }) {
+function unstylePasted(
+  slice: Slice,
+  view: { state: { schema: Schema; doc: ProseMirrorNode } },
+) {
   const { schema, doc } = view.state;
-  return new Slice(unstyleFragment(slice.content, doc, schema), slice.openStart, slice.openEnd);
+  return new Slice(
+    unstyleFragment(slice.content, doc, schema),
+    slice.openStart,
+    slice.openEnd,
+  );
 }
 
 const editor = new Editor({
@@ -237,20 +274,33 @@ const editor = new Editor({
   ],
   ...loadDraft(),
   editorProps: {
-    attributes: { "aria-label": "Post", "aria-multiline": "true", role: "textbox" },
+    attributes: {
+      "aria-label": "Post",
+      "aria-multiline": "true",
+      role: "textbox",
+    },
     transformPastedHTML: unwrapEmojiImages,
     transformPasted: unstylePasted,
   },
 });
 
-type Format = { run: (chain: ChainedCommands) => ChainedCommands; active: [string, object?] };
+type Format = {
+  run: (chain: ChainedCommands) => ChainedCommands;
+  active: [string, object?];
+};
 
 const formats: Record<string, Format> = {
   bold: { run: (c) => c.toggleBold(), active: ["bold"] },
   italic: { run: (c) => c.toggleItalic(), active: ["italic"] },
   code: { run: (c) => c.toggleCode(), active: ["code"] },
-  h1: { run: (c) => c.toggleHeading({ level: 1 }), active: ["heading", { level: 1 }] },
-  h2: { run: (c) => c.toggleHeading({ level: 2 }), active: ["heading", { level: 2 }] },
+  h1: {
+    run: (c) => c.toggleHeading({ level: 1 }),
+    active: ["heading", { level: 1 }],
+  },
+  h2: {
+    run: (c) => c.toggleHeading({ level: 2 }),
+    active: ["heading", { level: 2 }],
+  },
   bullets: { run: (c) => c.toggleBulletList(), active: ["bulletList"] },
   numbers: { run: (c) => c.toggleOrderedList(), active: ["orderedList"] },
   codeBlock: { run: (c) => c.toggleCodeBlock(), active: ["codeBlock"] },
@@ -298,7 +348,9 @@ function syncToolbar() {
   clearButton.ariaDisabled = String(editor.isEmpty);
   clearFormattingButton.ariaDisabled = String(editor.isEmpty);
   for (const button of buttons) {
-    button.ariaPressed = String(editor.isActive(...formats[button.dataset["format"]!]!.active));
+    button.ariaPressed = String(
+      editor.isActive(...formats[button.dataset["format"]!]!.active),
+    );
   }
 }
 
@@ -311,9 +363,12 @@ if (!("focusGroup" in HTMLElement.prototype)) {
   toolbar.addEventListener("keydown", (event) => {
     const i = buttons.indexOf(document.activeElement as HTMLButtonElement);
     const n = buttons.length;
-    const next = { ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 }[
-      event.key
-    ];
+    const next = {
+      ArrowRight: (i + 1) % n,
+      ArrowLeft: (i - 1 + n) % n,
+      Home: 0,
+      End: n - 1,
+    }[event.key];
     if (i < 0 || next === undefined) return;
     event.preventDefault();
     buttons[next]!.focus();
@@ -322,7 +377,9 @@ if (!("focusGroup" in HTMLElement.prototype)) {
 
 // ── Conversion ──────────────────────────────────────────────────────────────
 
-const worker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
+const worker = new Worker(new URL("./worker.ts", import.meta.url), {
+  type: "module",
+});
 let latest = 0;
 // The settled text of the latest request, or null while it is converting.
 let ready: string | null = null;
@@ -347,27 +404,30 @@ function convert() {
   worker.postMessage(request);
 }
 
-worker.addEventListener("message", ({ data }: MessageEvent<ConvertResponse>) => {
-  // Replies arrive in order; skip any that a newer edit has superseded.
-  if (data.id !== latest) return;
-  errorBanner.hidden = !("error" in data);
-  if ("error" in data) {
-    errorBanner.textContent = `The converter failed: ${data.error}`;
-    result.reject(new Error(data.error));
-    return;
-  }
-  const { text } = data;
-  ready = text;
-  result.resolve(text);
-  post.textContent = text;
-  post.classList.toggle("empty", !text);
-  copyButton.ariaDisabled = String(!text);
-  // The trailing newline the converter ends with is not part of the post.
-  const length = text.trimEnd().length;
-  const over = length > POST_LIMIT;
-  count.classList.toggle("over", over);
-  count.textContent = `${length.toLocaleString("en-GB")} / ${POST_LIMIT.toLocaleString("en-GB")}${over ? ", too long for a post" : ""}`;
-});
+worker.addEventListener(
+  "message",
+  ({ data }: MessageEvent<ConvertResponse>) => {
+    // Replies arrive in order; skip any that a newer edit has superseded.
+    if (data.id !== latest) return;
+    errorBanner.hidden = !("error" in data);
+    if ("error" in data) {
+      errorBanner.textContent = `The converter failed: ${data.error}`;
+      result.reject(new Error(data.error));
+      return;
+    }
+    const { text } = data;
+    ready = text;
+    result.resolve(text);
+    post.textContent = text;
+    post.classList.toggle("empty", !text);
+    copyButton.ariaDisabled = String(!text);
+    // The trailing newline the converter ends with is not part of the post.
+    const length = text.trimEnd().length;
+    const over = length > POST_LIMIT;
+    count.classList.toggle("over", over);
+    count.textContent = `${length.toLocaleString("en-GB")} / ${POST_LIMIT.toLocaleString("en-GB")}${over ? ", too long for a post" : ""}`;
+  },
+);
 
 editor.on("transaction", syncToolbar);
 editor.on("update", () => {
@@ -396,9 +456,13 @@ async function writeLatest() {
   // for a click made while a conversion is pending, since Safari only accepts
   // a later write as the user's gesture in that form.
   if (ready === null && "ClipboardItem" in globalThis) {
-    const blob = result.promise.then((value) => new Blob([value], { type: "text/plain" }));
+    const blob = result.promise.then(
+      (value) => new Blob([value], { type: "text/plain" }),
+    );
     try {
-      await navigator.clipboard.write([new ClipboardItem({ "text/plain": blob })]);
+      await navigator.clipboard.write([
+        new ClipboardItem({ "text/plain": blob }),
+      ]);
       return;
     } catch {
       // Falls through to writing the text once it is ready.
@@ -420,7 +484,9 @@ copyButton.addEventListener("click", async () => {
   copyButton.toggleAttribute("data-copied", ok);
   copyButton.toggleAttribute("data-failed", !ok);
   copyStatus.textContent = "";
-  requestAnimationFrame(() => (copyStatus.textContent = ok ? "Copied" : "Copy failed"));
+  requestAnimationFrame(
+    () => (copyStatus.textContent = ok ? "Copied" : "Copy failed"),
+  );
   resetCopy = setTimeout(() => {
     copyButton.removeAttribute("data-copied");
     copyButton.removeAttribute("data-failed");

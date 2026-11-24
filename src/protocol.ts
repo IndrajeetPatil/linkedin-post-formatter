@@ -7,4 +7,6 @@ export interface ConvertRequest {
   monospaceCode: boolean;
 }
 
-export type ConvertResponse = { id: number; text: string } | { id: number; error: string };
+export type ConvertResponse =
+  | { id: number; text: string }
+  | { id: number; error: string };

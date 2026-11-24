@@ -21,7 +21,9 @@ const context = await browser.newContext({
   recordVideo: { dir: videoDir, size },
 });
 // Start from an empty editor rather than the sample post.
-await context.addInitScript(() => localStorage.setItem("linkedin-post-formatter:draft", ""));
+await context.addInitScript(() =>
+  localStorage.setItem("linkedin-post-formatter:draft", ""),
+);
 const page = await context.newPage();
 const started = Date.now();
 await page.goto(url);
@@ -40,7 +42,10 @@ const pasteEmoji = (emoji) =>
   editor.evaluate((element, alt) => {
     const data = new DataTransfer();
     data.setData("text/html", `<img alt="${alt}" src="data:,">`);
-    const paste = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+    const paste = new ClipboardEvent("paste", {
+      bubbles: true,
+      cancelable: true,
+    });
     Object.defineProperty(paste, "clipboardData", { value: data });
     element.dispatchEvent(paste);
   }, emoji);
