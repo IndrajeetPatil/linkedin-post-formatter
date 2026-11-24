@@ -4,7 +4,14 @@
 root_dir = "public"
 
 # Exclude paths that aren't source content
-exclude_path = ["node_modules", "dist", ".git", "coverage", "src/wheels", ".agents"]
+exclude_path = [
+  "node_modules",
+  "dist",
+  ".git",
+  "coverage",
+  "src/wheels",
+  ".agents",
+]
 
 # Exclude URLs that are expected to fail or rate-limit
 exclude = [

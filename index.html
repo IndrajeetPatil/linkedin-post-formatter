@@ -2,13 +2,20 @@
 <html lang="en-GB">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <meta
+      name="color-scheme"
+      content="light dark"
+    />
     <!-- Applies a stored theme override before first paint; src/main.ts owns the toggle. -->
     <script>
       try {
         document.querySelector('meta[name="color-scheme"]').content =
-          localStorage.getItem("linkedin-post-formatter:color-scheme") ?? "light dark";
+          localStorage.getItem("linkedin-post-formatter:color-scheme") ??
+          "light dark";
       } catch {}
     </script>
     <!-- Google Analytics, as on every page of www.indrapatil.com (see its
@@ -42,36 +49,84 @@
       name="description"
       content="Free LinkedIn text editor and Unicode text formatter. Write your post with bold and italic text, headings, lists, and code, then copy text that LinkedIn keeps."
     />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
-    <link rel="canonical" href="https://www.indrapatil.com/linkedin-post-formatter/" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large"
+    />
+    <link
+      rel="canonical"
+      href="https://www.indrapatil.com/linkedin-post-formatter/"
+    />
+    <link
+      rel="icon"
+      href="/favicon.svg"
+      type="image/svg+xml"
+    />
     <!-- The paper colour of each scheme, from DESIGN.md. -->
-    <meta name="theme-color" content="#faf8f4" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#171410" media="(prefers-color-scheme: dark)" />
+    <meta
+      name="theme-color"
+      content="#faf8f4"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#171410"
+      media="(prefers-color-scheme: dark)"
+    />
 
     <!-- Link previews. scripts/social-card.mjs renders the image. -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Indrajeet Patil" />
-    <meta property="og:locale" content="en_GB" />
-    <meta property="og:title" content="LinkedIn Post Formatter and Text Editor" />
+    <meta
+      property="og:type"
+      content="website"
+    />
+    <meta
+      property="og:site_name"
+      content="Indrajeet Patil"
+    />
+    <meta
+      property="og:locale"
+      content="en_GB"
+    />
+    <meta
+      property="og:title"
+      content="LinkedIn Post Formatter and Text Editor"
+    />
     <meta
       property="og:description"
       content="Write a LinkedIn post with bold and italic text, headings, lists, and code, then copy Unicode text that LinkedIn keeps."
     />
-    <meta property="og:url" content="https://www.indrapatil.com/linkedin-post-formatter/" />
+    <meta
+      property="og:url"
+      content="https://www.indrapatil.com/linkedin-post-formatter/"
+    />
     <meta
       property="og:image"
       content="https://www.indrapatil.com/linkedin-post-formatter/social-card.png"
     />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:type"
+      content="image/png"
+    />
+    <meta
+      property="og:image:width"
+      content="1200"
+    />
+    <meta
+      property="og:image:height"
+      content="630"
+    />
     <meta
       property="og:image:alt"
       content="LinkedIn Post Formatter: bold, italic, and code written in the editor become Unicode text for LinkedIn."
     />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="LinkedIn Post Formatter and Text Editor" />
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+    <meta
+      name="twitter:title"
+      content="LinkedIn Post Formatter and Text Editor"
+    />
     <meta
       name="twitter:description"
       content="Write a LinkedIn post with bold and italic text, headings, lists, and code, then copy Unicode text that LinkedIn keeps."
@@ -119,21 +174,33 @@
       <div>
         <h1>LinkedIn Post Formatter</h1>
         <p class="summary">
-          LinkedIn drops formatting from pasted text. Write your post in this editor with bold and
-          italic text, headings, lists, and code, then copy a version spelled in Unicode characters,
-          which LinkedIn keeps.
+          LinkedIn drops formatting from pasted text. Write your post in this
+          editor with bold and italic text, headings, lists, and code, then copy
+          a version spelled in Unicode characters, which LinkedIn keeps.
         </p>
       </div>
       <div class="masthead-actions">
-        <a class="icon-button" href="privacy/" aria-label="Privacy" data-tip="Privacy">
+        <a
+          class="icon-button"
+          href="privacy/"
+          aria-label="Privacy"
+          data-tip="Privacy"
+        >
           <i data-lucide="shield-check"></i>
         </a>
-        <button type="button" id="theme-toggle" class="icon-button" data-tip="Switch to dark theme">
+        <button
+          type="button"
+          id="theme-toggle"
+          class="icon-button"
+          data-tip="Switch to dark theme"
+        >
           <span class="to-dark"
-            ><i data-lucide="moon"></i><span class="sr-only">Switch to dark theme</span></span
+            ><i data-lucide="moon"></i
+            ><span class="sr-only">Switch to dark theme</span></span
           >
           <span class="to-light"
-            ><i data-lucide="sun"></i><span class="sr-only">Switch to light theme</span></span
+            ><i data-lucide="sun"></i
+            ><span class="sr-only">Switch to light theme</span></span
           >
         </button>
         <a
@@ -142,7 +209,10 @@
           aria-label="Source code on GitHub"
           data-tip="Source code on GitHub"
         >
-          <svg viewBox="0 0 16 16" aria-hidden="true">
+          <svg
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+          >
             <path
               fill="currentColor"
               d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
@@ -153,7 +223,10 @@
     </header>
 
     <main class="workspace">
-      <section class="pane" aria-labelledby="write-heading">
+      <section
+        class="pane"
+        aria-labelledby="write-heading"
+      >
         <div class="pane-heading">
           <h2 id="write-heading">Write</h2>
           <div class="pane-actions">
@@ -185,23 +258,57 @@
             aria-label="Formatting"
             aria-controls="editor"
           >
-            <div role="group" aria-label="Text style">
-              <button type="button" data-format="bold" data-keys="Mod-B" aria-label="Bold">
+            <div
+              role="group"
+              aria-label="Text style"
+            >
+              <button
+                type="button"
+                data-format="bold"
+                data-keys="Mod-B"
+                aria-label="Bold"
+              >
                 <i data-lucide="bold"></i>
               </button>
-              <button type="button" data-format="italic" data-keys="Mod-I" aria-label="Italic">
+              <button
+                type="button"
+                data-format="italic"
+                data-keys="Mod-I"
+                aria-label="Italic"
+              >
                 <i data-lucide="italic"></i>
               </button>
-              <button type="button" data-format="code" data-keys="Mod-E" aria-label="Inline code">
+              <button
+                type="button"
+                data-format="code"
+                data-keys="Mod-E"
+                aria-label="Inline code"
+              >
                 <i data-lucide="code"></i>
               </button>
             </div>
-            <span role="separator" aria-orientation="vertical"></span>
-            <div role="group" aria-label="Blocks">
-              <button type="button" data-format="h1" data-keys="Mod-Alt-1" aria-label="Heading">
+            <span
+              role="separator"
+              aria-orientation="vertical"
+            ></span>
+            <div
+              role="group"
+              aria-label="Blocks"
+            >
+              <button
+                type="button"
+                data-format="h1"
+                data-keys="Mod-Alt-1"
+                aria-label="Heading"
+              >
                 <i data-lucide="heading-1"></i>
               </button>
-              <button type="button" data-format="h2" data-keys="Mod-Alt-2" aria-label="Subheading">
+              <button
+                type="button"
+                data-format="h2"
+                data-keys="Mod-Alt-2"
+                aria-label="Subheading"
+              >
                 <i data-lucide="heading-2"></i>
               </button>
               <button
@@ -234,16 +341,35 @@
         </div>
       </section>
 
-      <section class="pane" aria-labelledby="post-heading">
+      <section
+        class="pane"
+        aria-labelledby="post-heading"
+      >
         <div class="pane-heading">
           <h2 id="post-heading">LinkedIn text</h2>
-          <span id="count" class="folio-mark"></span>
+          <span
+            id="count"
+            class="folio-mark"
+          ></span>
         </div>
         <div class="panel">
           <div class="post-actions">
             <div class="options">
-              <label><input type="checkbox" id="monospace-code" checked /> Monospace code</label>
-              <label><input type="checkbox" id="preserve-links" /> Keep links</label>
+              <label
+                ><input
+                  type="checkbox"
+                  id="monospace-code"
+                  checked
+                />
+                Monospace code</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  id="preserve-links"
+                />
+                Keep links</label
+              >
             </div>
             <span class="copy">
               <button
@@ -256,17 +382,32 @@
                 <i data-lucide="copy"></i>
                 <i data-lucide="check"></i>
               </button>
-              <span class="tip" role="status"></span>
+              <span
+                class="tip"
+                role="status"
+              ></span>
             </span>
           </div>
-          <div id="post" class="post" aria-describedby="post-heading">
+          <div
+            id="post"
+            class="post"
+            aria-describedby="post-heading"
+          >
             <p class="loading">Loading the formatter…</p>
           </div>
         </div>
-        <p id="error" class="banner" role="alert" hidden></p>
+        <p
+          id="error"
+          class="banner"
+          role="alert"
+          hidden
+        ></p>
       </section>
     </main>
 
-    <script type="module" src="/src/main.ts"></script>
+    <script
+      type="module"
+      src="/src/main.ts"
+    ></script>
   </body>
 </html>

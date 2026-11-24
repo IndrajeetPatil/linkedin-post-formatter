@@ -2,13 +2,20 @@
 <html lang="en-GB">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <meta
+      name="color-scheme"
+      content="light dark"
+    />
     <!-- Applies a stored theme override before first paint; src/masthead.ts owns the toggle. -->
     <script>
       try {
         document.querySelector('meta[name="color-scheme"]').content =
-          localStorage.getItem("linkedin-post-formatter:color-scheme") ?? "light dark";
+          localStorage.getItem("linkedin-post-formatter:color-scheme") ??
+          "light dark";
       } catch {}
     </script>
     <!-- Google Analytics, as on every page of www.indrapatil.com (see its
@@ -42,27 +49,54 @@
       name="description"
       content="The LinkedIn Post Formatter converts your post in your browser. The text is never uploaded, and the draft stays on your device."
     />
-    <link rel="canonical" href="https://www.indrapatil.com/linkedin-post-formatter/privacy/" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#faf8f4" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#171410" media="(prefers-color-scheme: dark)" />
+    <link
+      rel="canonical"
+      href="https://www.indrapatil.com/linkedin-post-formatter/privacy/"
+    />
+    <link
+      rel="icon"
+      href="/favicon.svg"
+      type="image/svg+xml"
+    />
+    <meta
+      name="theme-color"
+      content="#faf8f4"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#171410"
+      media="(prefers-color-scheme: dark)"
+    />
   </head>
   <body>
     <header class="masthead">
       <div>
-        <a class="back" href="../">← LinkedIn Post Formatter</a>
+        <a
+          class="back"
+          href="../"
+          >← LinkedIn Post Formatter</a
+        >
         <h1>Privacy</h1>
         <p class="summary">
-          The formatter is free and private: what you write stays on your device.
+          The formatter is free and private: what you write stays on your
+          device.
         </p>
       </div>
       <div class="masthead-actions">
-        <button type="button" id="theme-toggle" class="icon-button" data-tip="Switch to dark theme">
+        <button
+          type="button"
+          id="theme-toggle"
+          class="icon-button"
+          data-tip="Switch to dark theme"
+        >
           <span class="to-dark"
-            ><i data-lucide="moon"></i><span class="sr-only">Switch to dark theme</span></span
+            ><i data-lucide="moon"></i
+            ><span class="sr-only">Switch to dark theme</span></span
           >
           <span class="to-light"
-            ><i data-lucide="sun"></i><span class="sr-only">Switch to light theme</span></span
+            ><i data-lucide="sun"></i
+            ><span class="sr-only">Switch to light theme</span></span
           >
         </button>
         <a
@@ -71,7 +105,10 @@
           aria-label="Source code on GitHub"
           data-tip="Source code on GitHub"
         >
-          <svg viewBox="0 0 16 16" aria-hidden="true">
+          <svg
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+          >
             <path
               fill="currentColor"
               d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
@@ -85,55 +122,74 @@
       <section>
         <h2>Free</h2>
         <p>
-          No price, no adverts, no account, and no sign-up. The formatter is open-source software
-          under the MIT licence, so anyone can read
-          <a href="https://github.com/IndrajeetPatil/linkedin-post-formatter">its code</a>.
+          No price, no adverts, no account, and no sign-up. The formatter is
+          open-source software under the MIT licence, so anyone can read
+          <a href="https://github.com/IndrajeetPatil/linkedin-post-formatter"
+            >its code</a
+          >.
         </p>
       </section>
       <section>
         <h2>Your post stays with you</h2>
         <p>
           Your post is converted inside this browser, by the
-          <a href="https://github.com/IndrajeetPatil/md2linkedin">md2linkedin</a> Python package
-          running on WebAssembly. The text is never uploaded: there is no server that could receive
-          it. Copying puts it on your clipboard and nowhere else.
+          <a href="https://github.com/IndrajeetPatil/md2linkedin"
+            >md2linkedin</a
+          >
+          Python package running on WebAssembly. The text is never uploaded:
+          there is no server that could receive it. Copying puts it on your
+          clipboard and nowhere else.
         </p>
       </section>
       <section>
         <h2>Saved on this device</h2>
         <p>
-          Your draft, the colour scheme, and the two output options are saved in this browser, on
-          this device, so they are there when you come back. Clear post empties the draft, and
-          clearing your browser data for the site deletes all of it.
+          Your draft, the colour scheme, and the two output options are saved in
+          this browser, on this device, so they are there when you come back.
+          Clear post empties the draft, and clearing your browser data for the
+          site deletes all of it.
         </p>
       </section>
       <section>
         <h2>What the page downloads</h2>
         <p>
-          GitHub Pages serves the page, its fonts, and its Python packages. The Python runtime,
-          Pyodide, comes from the jsDelivr network. Like any download, these requests show GitHub
-          and jsDelivr your IP address and browser, but never your text.
+          GitHub Pages serves the page, its fonts, and its Python packages. The
+          Python runtime, Pyodide, comes from the jsDelivr network. Like any
+          download, these requests show GitHub and jsDelivr your IP address and
+          browser, but never your text.
         </p>
       </section>
       <section>
         <h2>Counting visits</h2>
         <p>
           Like the rest of
-          <a href="https://www.indrapatil.com/" target="_blank" rel="noreferrer">indrapatil.com</a>,
-          the site counts visits with Google Analytics: Google learns that the page was opened, with
-          details such as your browser and rough location, but never your text. The
-          <a href="https://www.indrapatil.com/privacy/" target="_blank" rel="noreferrer"
+          <a
+            href="https://www.indrapatil.com/"
+            target="_blank"
+            rel="noreferrer"
+            >indrapatil.com</a
+          >, the site counts visits with Google Analytics: Google learns that
+          the page was opened, with details such as your browser and rough
+          location, but never your text. The
+          <a
+            href="https://www.indrapatil.com/privacy/"
+            target="_blank"
+            rel="noreferrer"
             >privacy notice</a
           >
-          has the details. The formatter works the same if your browser blocks it.
+          has the details. The formatter works the same if your browser blocks
+          it.
         </p>
       </section>
       <section>
         <h2>Get in touch</h2>
         <p>
-          Spotted a mistake, a privacy concern, or something that does not work? Open an issue on
-          <a href="https://github.com/IndrajeetPatil/linkedin-post-formatter/issues">GitHub</a>. If
-          you liked this application, explore
+          Spotted a mistake, a privacy concern, or something that does not work?
+          Open an issue on
+          <a
+            href="https://github.com/IndrajeetPatil/linkedin-post-formatter/issues"
+            >GitHub</a
+          >. If you liked this application, explore
           <a
             href="https://www.indrapatil.com/experience/open-source/#applications"
             target="_blank"
@@ -144,6 +200,9 @@
       </section>
     </main>
 
-    <script type="module" src="/src/privacy.ts"></script>
+    <script
+      type="module"
+      src="/src/privacy.ts"
+    ></script>
   </body>
 </html>
