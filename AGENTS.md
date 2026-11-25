@@ -47,9 +47,11 @@ repository:
   tests, CI, or docs are exempt.
 
 - After opening or pushing, wait for hosted CI to finish. Inspect failed jobs,
-  fix the cause, run the local checks (`vp run qa`, `vp run e2e`, and
-  `prek run --all-files`), push, and repeat. Skipped, queued, or failing
-  required checks are not success.
+  fix the cause, run the local checks (`vp run qa`, `vp run e2e`,
+  `prek run --all-files`, `lychee .`, and, for app changes,
+  `vp run lighthouse`), push, and repeat. CI runs every one of these, but
+  only some run in the Git hooks. Skipped, queued, or failing required checks
+  are not success.
 
 - If an automatic AI review (Codex, for the owner) runs on the PR, wait for
   its result instead of requesting one. Fix merited findings, reply to and
