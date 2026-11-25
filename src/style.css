@@ -423,9 +423,13 @@ svg {
 
 /* ── Editor ───────────────────────────────────────────────────────────────── */
 
+/* The editor mounts from a script after first paint, so the empty container
+   reserves the editor's minimum height; otherwise the mount pushes the
+   LinkedIn text pane down. */
 #editor {
   display: flex;
   flex: 1;
+  min-height: 24rem;
 }
 
 .tiptap {
