@@ -94,8 +94,9 @@ repository:
 
 ## Gotchas
 
-- Fix failures rather than weakening checks: keep Oxlint's type-aware rules
-  and the end-to-end browser projects as they are.
+- Fix failures rather than weakening checks: keep Oxlint's type-aware rules,
+  the end-to-end browser projects, and the Lighthouse thresholds in
+  `.lighthouserc.json` as they are.
 
 - Never put information in a native `title` attribute: its tooltip is
   hover-only, so keyboard and touch users never see it. Show it visibly or
