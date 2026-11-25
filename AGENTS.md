@@ -103,6 +103,8 @@ repository:
 
 - Never give a secret to a job that installs or runs project dependencies.
   Pin third-party actions by full commit SHA with a version comment.
+  First-party reusable workflows from `IndrajeetPatil/workflows` stay on
+  `@main` by design; don't pin them.
 
 - Keep `.github/workflows/actions.lock` in sync with the workflows: after any
   `uses:` change, run `vp run actions-lock` (needs the `gh-actions-lock`

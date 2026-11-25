@@ -24,6 +24,24 @@ stages = ["commit-msg"]
 args = ["--strict", "--verbose"]
 
 [[repos]]
+repo = "https://github.com/gitleaks/gitleaks"
+rev = "83d9cd684c87d95d656c1458ef04895a7f1cbd8e" # frozen: v8.30.1
+
+# Scans the staged diff; CI scans the complete history.
+[[repos.hooks]]
+id = "gitleaks"
+
+[[repos]]
+repo = "https://github.com/crate-ci/typos"
+rev = "276087d9a4f06398b3e04825487805e2d7375888" # frozen: v1.52.2
+
+# Like a bare `typos` run, leaves hidden files and directories (vendored
+# skills, prompts) unchecked.
+[[repos.hooks]]
+id = "typos"
+exclude = "^\\."
+
+[[repos]]
 repo = "local"
 
 # Type-aware linting resolves the app's own dependencies, so this hook runs
@@ -35,23 +53,6 @@ language = "system"
 entry = "vp check --deny-warnings"
 files = "\\.([cm]?[jt]sx?|json|css|html|md|ya?ml|toml)$"
 pass_filenames = false
-
-# Staged-diff secret scan with gitleaks; CI scans full history.
-[[repos.hooks]]
-id = "gitleaks"
-name = "gitleaks (staged secret scan)"
-language = "system"
-entry = "gitleaks git --pre-commit --redact --staged --verbose"
-pass_filenames = false
-
-# Spelling with typos over the whole tree.
-[[repos.hooks]]
-id = "typos"
-name = "typos (spelling)"
-language = "system"
-entry = "typos"
-pass_filenames = false
-types = ["text"]
 
 # Submodules are not allowed.
 [[repos.hooks]]
