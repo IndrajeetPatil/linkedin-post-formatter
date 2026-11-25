@@ -49,7 +49,10 @@ export default defineConfig({
   run: {
     tasks: {
       check: {
-        command: ["vp check --deny-warnings", "vp run css-quality"],
+        command: [
+          "vp check --deny-warnings --continue-on-error",
+          "vp run css-quality",
+        ],
         cache: false,
       },
       typecheck: {
