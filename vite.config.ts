@@ -45,7 +45,7 @@ export default defineConfig({
   run: {
     tasks: {
       check: {
-        command: "vp check --deny-warnings",
+        command: ["vp check --deny-warnings", "vp run css-quality"],
         cache: false,
       },
       typecheck: {

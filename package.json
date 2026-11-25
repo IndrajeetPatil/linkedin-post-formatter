@@ -13,7 +13,8 @@
     "actions-lock": "scripts/actions-lock.sh",
     "actions-lock:verify": "scripts/actions-lock.sh --verify",
     "social-card": "node scripts/social-card.mjs",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "css-quality": "node scripts/css-quality.ts"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
+    "@projectwallace/css-code-quality": "^3.1.5",
     "@types/node": "^26.6.6",
     "@vitest/coverage-v8": "5.1.0",
     "typescript": "~7.0.2",
