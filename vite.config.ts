@@ -8,6 +8,7 @@ const GENERATED = [
   "playwright-report/**",
   "test-results/**",
   "src/wheels/**",
+  ".lighthouseci/**",
 ];
 
 const LINT_PLUGINS = [
@@ -32,6 +33,9 @@ const assetFileNames = ({ names }: { names: string[] }) =>
 export default defineConfig({
   // GitHub Pages serves a project site from /<repository>/.
   base: process.env["PAGES_BASE"] ?? "/",
+  // Two HTML entry points and no client-side routing: unknown paths get a 404,
+  // as on GitHub Pages, instead of the SPA fallback to index.html.
+  appType: "mpa",
   assetsInclude: ["**/*.whl"],
   // Pyodide locates its runtime files itself, so it is left unbundled in dev.
   optimizeDeps: { exclude: ["pyodide"] },
@@ -58,6 +62,13 @@ export default defineConfig({
       },
       qa: {
         command: ["vp run check", "vp run typecheck", "vp run test"],
+        cache: false,
+      },
+      // Builds under the GitHub Pages base path, then runs Lighthouse CI
+      // against `vp preview` (see .lighthouserc.json). Needs the wheels.
+      lighthouse: {
+        command:
+          "PAGES_BASE=/linkedin-post-formatter/ vp build && vp dlx @lhci/cli@0.16.1 autorun",
         cache: false,
       },
     },

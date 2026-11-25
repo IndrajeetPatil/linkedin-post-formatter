@@ -49,7 +49,25 @@ vp run test       # Unit tests with coverage
 vp run qa         # Check formatting, types, CSS quality, and unit tests
 prek install      # Git hooks from prek.toml (run all: prek run --all-files)
 vp run e2e        # End-to-end tests in Chromium, Firefox, and WebKit
+vp run lighthouse # Build, then Lighthouse CI on both pages (needs the wheels and Chrome)
 ```
+
+`vp run lighthouse` serves the build under the `/linkedin-post-formatter/`
+base path that GitHub Pages uses and audits both pages five times with
+Lighthouse's mobile throttling. CI runs it on every app change and fails on the
+median of the five runs:
+
+| Gate                                                     | Threshold |
+| -------------------------------------------------------- | --------- |
+| Performance                                              | ≥ 85      |
+| Accessibility, best practices, SEO, and agentic browsing | 100       |
+| Largest Contentful Paint                                 | ≤ 4 s     |
+| Cumulative Layout Shift                                  | ≤ 0.1     |
+| Total Blocking Time                                      | ≤ 200 ms  |
+
+The thresholds live in `.lighthouserc.json`. When a score falls short, fix the
+page, not the threshold. Reports are written to `.lighthouseci/` and uploaded
+as a CI artefact.
 
 The versions of the Python packages live in `wheels/requirements.txt`.
 

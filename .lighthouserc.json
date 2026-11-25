@@ -1,0 +1,31 @@
+{
+  "ci": {
+    "collect": {
+      "//": "Lighthouse's default mobile throttling applies; assert the median of five runs so CI neither passes on one lucky sample nor fails on one or two slow ones. The preview server serves the build under the same /linkedin-post-formatter/ base path that GitHub Pages uses.",
+      "startServerCommand": "PAGES_BASE=/linkedin-post-formatter/ vp preview --port 4174 --strictPort",
+      "startServerReadyPattern": "Local",
+      "url": [
+        "http://localhost:4174/linkedin-post-formatter/",
+        "http://localhost:4174/linkedin-post-formatter/privacy/"
+      ],
+      "numberOfRuns": 5
+    },
+    "assert": {
+      "aggregationMethod": "median",
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.85 }],
+        "categories:accessibility": ["error", { "minScore": 1 }],
+        "categories:best-practices": ["error", { "minScore": 1 }],
+        "categories:seo": ["error", { "minScore": 1 }],
+        "categories:agentic-browsing": ["error", { "minScore": 1 }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 4000 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+        "total-blocking-time": ["error", { "maxNumericValue": 200 }]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci/reports"
+    }
+  }
+}

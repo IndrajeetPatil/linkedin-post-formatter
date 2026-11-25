@@ -47,9 +47,11 @@ repository:
   tests, CI, or docs are exempt.
 
 - After opening or pushing, wait for hosted CI to finish. Inspect failed jobs,
-  fix the cause, run the local checks (`vp run qa`, `vp run e2e`, and
-  `prek run --all-files`), push, and repeat. Skipped, queued, or failing
-  required checks are not success.
+  fix the cause, run the local checks (`vp run qa`, `vp run e2e`,
+  `prek run --all-files`, `lychee .`, and, for app changes,
+  `vp run lighthouse`), push, and repeat. CI runs every one of these, but
+  only some run in the Git hooks. Skipped, queued, or failing required checks
+  are not success.
 
 - If an automatic AI review (Codex, for the owner) runs on the PR, wait for
   its result instead of requesting one. Fix merited findings, reply to and
@@ -94,8 +96,9 @@ repository:
 
 ## Gotchas
 
-- Fix failures rather than weakening checks: keep Oxlint's type-aware rules
-  and the end-to-end browser projects as they are.
+- Fix failures rather than weakening checks: keep Oxlint's type-aware rules,
+  the end-to-end browser projects, and the Lighthouse thresholds in
+  `.lighthouserc.json` as they are.
 
 - Never put information in a native `title` attribute: its tooltip is
   hover-only, so keyboard and touch users never see it. Show it visibly or

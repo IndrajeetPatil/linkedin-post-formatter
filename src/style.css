@@ -5,7 +5,8 @@
    shift the layout. */
 @font-face {
   font-family: "Hanken Grotesk Fallback";
-  src: local("Arial"), local("Helvetica");
+  /* Liberation Sans, common on Linux, shares Arial's metrics. */
+  src: local("Arial"), local("Helvetica"), local("Liberation Sans");
   size-adjust: 101.53%;
   ascent-override: 98.5%;
   descent-override: 29.84%;
@@ -423,9 +424,13 @@ svg {
 
 /* ── Editor ───────────────────────────────────────────────────────────────── */
 
+/* The editor mounts from a script after first paint, so the empty container
+   reserves the editor's minimum height; otherwise the mount pushes the
+   LinkedIn text pane down. */
 #editor {
   display: flex;
   flex: 1;
+  min-height: 24rem;
 }
 
 .tiptap {
