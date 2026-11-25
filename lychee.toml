@@ -19,6 +19,9 @@ exclude = [
   "http://localhost.*",
   # LinkedIn returns 999 for automated requests
   "https://www\\.linkedin\\.com/.*",
+  # Vite resolves `/node_modules/...` references in HTML, such as the font
+  # preloads, to hashed assets at build time; they are not public files.
+  "^file://.*/public/node_modules/",
 ]
 
 # Accept these status codes as valid
