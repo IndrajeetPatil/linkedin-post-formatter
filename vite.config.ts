@@ -43,6 +43,15 @@ export default defineConfig({
     rolldownOptions: {
       input: { main: "index.html", privacy: "privacy/index.html" },
       output: { assetFileNames },
+      onwarn(warning, defaultHandler) {
+        if (
+          warning.plugin === "rolldown:vite-resolve" &&
+          warning.message?.includes("browser compatibility")
+        ) {
+          return;
+        }
+        defaultHandler(warning);
+      },
     },
   },
   worker: { format: "es", rolldownOptions: { output: { assetFileNames } } },
@@ -71,7 +80,7 @@ export default defineConfig({
       // against `vp preview` (see .lighthouserc.json). Needs the wheels.
       lighthouse: {
         command:
-          "PAGES_BASE=/linkedin-post-formatter/ vp build && vp dlx --silent @lhci/cli@0.16.1 collect && vp dlx --silent @lhci/cli@0.16.1 assert",
+          "PAGES_BASE=/linkedin-post-formatter/ vp build --logLevel warn && vp dlx --silent @lhci/cli@0.16.1 collect && vp dlx --silent @lhci/cli@0.16.1 assert",
         cache: false,
       },
     },
