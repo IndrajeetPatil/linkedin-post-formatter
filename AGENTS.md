@@ -11,8 +11,8 @@
 - The Pyodide version in `package.json` is pinned exactly: the wheels are
   cross-compiled for that release, and `scripts/build-wheels.sh` reads it from
   there. After changing it, or `wheels/requirements.txt`, rebuild the wheels.
-  The script also pins `pyodide-build`; upgrade it when a new Pyodide release
-  needs a newer one.
+  The script also pins `pyodide-cli` and `pyodide-build`; upgrade them when a
+  new Pyodide release needs newer versions.
 
 - Only offer editor formatting that md2linkedin can express in Unicode; it
   has no style for strikethrough, underline, quotes, or rules.
@@ -99,7 +99,9 @@ repository:
 - Keep Lighthouse in its own self-contained `lighthouse.yml` workflow named
   `Lighthouse`. Use the native LHCI assertion output and
   `includePassedAssertions` for measurements; do not add a shared action,
-  reusable workflow, or custom reporter.
+  reusable workflow, or custom reporter. Exclude privacy pages. Cache
+  dependencies and the toolchain, while keeping Lighthouse measurements
+  uncached.
 
 - Fix failures rather than weakening checks: keep Oxlint's type-aware rules,
   the end-to-end browser projects, and the Lighthouse thresholds in
