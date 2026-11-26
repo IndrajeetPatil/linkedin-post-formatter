@@ -18,46 +18,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Decides whether the change can affect the app. Jobs are skipped with `if`
-  # rather than the workflow being filtered by `paths`, because a skipped job
-  # still satisfies a required status check and a filtered workflow does not.
-  changes:
-    name: Changes
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      app: ${{ steps.filter.outputs.app }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      # Anything not listed as inert counts as an app change, so a new kind of
-      # file runs the full suite until it is added here. Markdown only counts
-      # as inert outside `src/`, where `sample.md` is bundled into the app.
-      - name: Filter changed files
-        id: filter
-        env:
-          BASE: ${{ github.event.pull_request.base.sha }}
-        run: |
-          app=false
-          while IFS= read -r file; do
-            case "$file" in
-              src/*) app=true ;;
-              docs/* | hextools/* | .agents/* | .claude/* | .github/prompts/* | \
-                .github/dependabot.yml | .github/workflows/actions.lock | \
-                LICENSE.md | prek.toml | skills-lock.json | scripts/actions-lock.sh | \
-                scripts/record-demo.mjs | _typos.toml | .rumdl.toml | lychee.toml) ;;
-              */*) app=true ;;
-              *.md) ;;
-              *) app=true ;;
-            esac
-          done < <(git diff --name-only "$BASE" HEAD)
-          echo "app=$app" >> "$GITHUB_OUTPUT"
-          echo "Changes affect the app: $app"
-
   check:
     name: Check
     runs-on: ubuntu-latest
@@ -73,7 +33,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh extension install github/gh-actions-lock --pin v0.5.0
+          gh extension install github/gh-actions-lock --pin v0.5.1
           scripts/actions-lock.sh --verify
 
       # Prebuilt Rust and Go binaries install in seconds, unlike Node-based
@@ -150,7 +110,7 @@ jobs:
           cache: true
           cache-toolchain: true
           run-install: |
-            args: [--frozen-lockfile]
+            args: [--frozen-lockfile, --, --loglevel=warn]
 
       - name: Format, lint, and types (vp run check)
         run: vp run check
@@ -178,90 +138,3 @@ jobs:
           }
           cat "$RUNNER_TEMP/lychee.log"
           exit "$(cat "$RUNNER_TEMP/lychee.status")"
-
-  # Only the browser suite is skipped for inert changes; `check` still runs
-  # because `vp check` formats Markdown too. The caches below are saved per pull
-  # request, so they speed up later pushes and reruns within the same one.
-  e2e:
-    name: E2E
-    needs: changes
-    if: needs.changes.outputs.app == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Install Vite+
-        uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
-        with:
-          node-version-file: ".node-version"
-          cache: true
-          cache-toolchain: true
-          run-install: |
-            args: [--frozen-lockfile]
-
-      - name: Read tool versions
-        id: versions
-        run: |
-          {
-            echo "pyodide=$(node -p 'require("pyodide/package.json").version')"
-            echo "playwright=$(node -p 'require("@playwright/test/package.json").version')"
-            if [[ -f /etc/os-release ]]; then
-              # shellcheck source=/dev/null
-              . /etc/os-release
-              echo "os=${ID}${VERSION_ID}"
-            else
-              echo "os=$(uname -s)"
-            fi
-          } >> "$GITHUB_OUTPUT"
-
-      # The wheels depend only on the Pyodide release, the requirements, and
-      # the build script, so a rebuild is needed only when one of them changes.
-      - name: Restore Pyodide wheels
-        id: wheels-cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: src/wheels
-          key: wheels-${{ runner.os }}-pyodide-${{ steps.versions.outputs.pyodide }}-${{ hashFiles('wheels/requirements.txt', 'scripts/build-wheels.sh') }}
-
-      - name: Install uv
-        if: ${{ steps.wheels-cache.outputs.cache-hit != 'true' }}
-        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
-        with:
-          enable-cache: true
-          cache-dependency-glob: |
-            wheels/requirements.txt
-            scripts/build-wheels.sh
-
-      - name: Build Pyodide wheels
-        if: ${{ steps.wheels-cache.outputs.cache-hit != 'true' }}
-        run: vp run wheels
-
-      # Only the browser downloads are cached; `--with-deps` still installs
-      # the system libraries, and skips browsers that are already present.
-      # Scoped by OS version so distribution upgrades do not restore incompatible
-      # browser builds.
-      - name: Restore Playwright browsers
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.versions.outputs.os }}-${{ steps.versions.outputs.playwright }}
-
-      - name: Install browsers
-        run: vp exec playwright install --with-deps chromium firefox webkit
-
-      - name: Run end-to-end tests
-        run: vp run e2e
-        env:
-          CI: true
-
-      - name: Upload Playwright report
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 14

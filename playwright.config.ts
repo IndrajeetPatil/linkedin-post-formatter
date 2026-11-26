@@ -43,6 +43,6 @@ export default defineConfig({
     command: "vp build && vp preview --port 4173 --strictPort",
     env: { PAGES_BASE: base },
     url: `http://localhost:4173${base}`,
-    reuseExistingServer: !process.env["CI"],
+    reuseExistingServer: !isCI,
   },
 });
