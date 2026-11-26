@@ -96,6 +96,11 @@ repository:
 
 ## Gotchas
 
+- Keep Lighthouse in its own self-contained `lighthouse.yml` workflow named
+  `Lighthouse`. Use the native LHCI assertion output and
+  `includePassedAssertions` for measurements; do not add a shared action,
+  reusable workflow, or custom reporter.
+
 - Fix failures rather than weakening checks: keep Oxlint's type-aware rules,
   the end-to-end browser projects, and the Lighthouse thresholds in
   `.lighthouserc.json` as they are.
