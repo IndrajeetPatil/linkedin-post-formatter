@@ -1,4 +1,4 @@
-name: CI
+name: QA
 
 # Every change reaches `main` through a pull request, so QA and tests run only
 # on pull requests; pushes to `main` only deploy (see pages.yml).
@@ -14,12 +14,12 @@ defaults:
     shell: bash
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: qa-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  check:
-    name: Check
+  qa:
+    name: QA
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
