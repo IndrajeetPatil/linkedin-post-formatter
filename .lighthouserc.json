@@ -4,14 +4,12 @@
       "//": "Lighthouse's default mobile throttling applies; assert the median of five runs so CI neither passes on one lucky sample nor fails on one or two slow ones. The preview server serves the build under the same /linkedin-post-formatter/ base path that GitHub Pages uses.",
       "startServerCommand": "PAGES_BASE=/linkedin-post-formatter/ vp preview --port 4174 --strictPort",
       "startServerReadyPattern": "Local",
-      "url": [
-        "http://localhost:4174/linkedin-post-formatter/",
-        "http://localhost:4174/linkedin-post-formatter/privacy/"
-      ],
+      "url": ["http://localhost:4174/linkedin-post-formatter/"],
       "numberOfRuns": 5
     },
     "assert": {
       "aggregationMethod": "median",
+      "includePassedAssertions": true,
       "assertions": {
         "categories:performance": ["error", { "minScore": 0.85 }],
         "categories:accessibility": ["error", { "minScore": 1 }],

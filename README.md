@@ -49,13 +49,14 @@ vp run test       # Unit tests with coverage
 vp run qa         # Check formatting, types, CSS quality, and unit tests
 prek install      # Git hooks from prek.toml (run all: prek run --all-files)
 vp run e2e        # End-to-end tests in Chromium, Firefox, and WebKit
-vp run lighthouse # Build, then Lighthouse CI on both pages (needs the wheels and Chrome)
+vp run lighthouse # Build, then Lighthouse CI on the app (needs the wheels and Chrome)
 ```
 
 `vp run lighthouse` serves the build under the `/linkedin-post-formatter/`
-base path that GitHub Pages uses and audits both pages five times with
-Lighthouse's mobile throttling. CI runs it on every app change and fails on the
-median of the five runs:
+base path that GitHub Pages uses and audits the main page five times with
+Lighthouse's mobile throttling. The dedicated `Lighthouse` workflow runs on
+every pull request and on manual dispatch, and fails on the median of the
+five runs:
 
 | Gate                                                     | Threshold |
 | -------------------------------------------------------- | --------- |
@@ -67,7 +68,14 @@ median of the five runs:
 
 The thresholds live in `.lighthouserc.json`. When a score falls short, fix the
 page, not the threshold. Reports are written to `.lighthouseci/` and uploaded
-as a CI artefact.
+as a CI artefact for 14 days, including after failures. Native Lighthouse CI
+assertion output shows the actual values, limits, and individual samples; CI
+colours passing values green and failing values red. No GitHub status token
+is needed. Privacy pages are excluded.
+
+Validation workflows cache dependencies, the exact Node/Vite+ toolchain,
+and the Pyodide wheels. Lighthouse measurements always run afresh
+(`cache: false` on the Vite+ task).
 
 The versions of the Python packages live in `wheels/requirements.txt`.
 

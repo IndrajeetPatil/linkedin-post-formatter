@@ -6,7 +6,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 pyodide_version=$(node -p 'require("pyodide/package.json").version')
-pyodide() { uvx --python 3.14 --from 'pyodide-build[resolve]==0.39.4' pyodide "$@"; }
+pyodide() {
+  uvx --python 3.14 --from 'pyodide-cli==0.5.0' \
+    --with 'pyodide-build[resolve]==0.39.4' pyodide "$@"
+}
 
 pyodide xbuildenv install "$pyodide_version"
 pyodide xbuildenv install-emscripten

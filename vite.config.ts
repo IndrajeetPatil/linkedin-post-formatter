@@ -71,7 +71,7 @@ export default defineConfig({
       // against `vp preview` (see .lighthouserc.json). Needs the wheels.
       lighthouse: {
         command:
-          "PAGES_BASE=/linkedin-post-formatter/ vp build && vp dlx @lhci/cli@0.16.1 autorun",
+          "PAGES_BASE=/linkedin-post-formatter/ vp build && vp dlx --silent @lhci/cli@0.16.1 collect && vp dlx --silent @lhci/cli@0.16.1 assert",
         cache: false,
       },
     },
