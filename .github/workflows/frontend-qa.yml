@@ -1,4 +1,4 @@
-name: QA
+name: Frontend QA
 
 # Every change reaches `main` through a pull request, so QA and tests run only
 # on pull requests; pushes to `main` only deploy (see pages.yml).
@@ -14,12 +14,12 @@ defaults:
     shell: bash
 
 concurrency:
-  group: qa-${{ github.ref }}
+  group: frontend-qa-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  qa:
-    name: QA
+  frontend-qa:
+    name: Frontend QA
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
