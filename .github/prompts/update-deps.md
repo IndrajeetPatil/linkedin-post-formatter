@@ -29,6 +29,10 @@ Keep the version pins consistent:
   `prek.toml`, and keep `minimum_prek_version` no newer than the
   `latest-known` version that the pinned `j178/prek-action` installs in CI.
 
+- **Lighthouse CI:** check if `@lhci/cli` has a newer release
+  (`npm view @lhci/cli version`), review its changelog, and update the
+  pinned version in the `lighthouse` task of `vite.config.ts`.
+
 Do not mirror these versions into GitHub Actions files; `setup-vp` reads
 `.node-version` and `package.json` as its sources of truth.
 
